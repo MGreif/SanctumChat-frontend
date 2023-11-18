@@ -4,6 +4,7 @@ import { MainPage } from "./MainPage"
 import { Login } from "./Login"
 
 export const App = () => {
+
     const routes = createBrowserRouter([{
         path: "/",
         element: <MainPage />,
