@@ -24,11 +24,11 @@
 }
 
 .active {
-    background-color: #f7f7f7;
+    background-color: #d4d4d4;
 }
 
 .grid>nav>span.user-nav-item:hover {
-    background-color: #f7f7f7;
+    background-color: #d4d4d4;
     cursor: pointer;
 }
 
@@ -72,4 +72,8 @@
 
 .input>button {
     flex: 1;
+}
+
+.online {
+    background-color: red;
 }

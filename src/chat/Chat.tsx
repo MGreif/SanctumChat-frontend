@@ -1,6 +1,6 @@
 import { json, useParams } from "react-router"
 import { Layout } from "../layout"
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AuthService } from "../auth/AuthService";
 import classes from "./chat.module.css"
 import { TUser } from "../types/user";
@@ -11,16 +11,23 @@ export type TMessageDirect = {
     recipient: string,
     message: string,
     sender: string
-
 }
+
+export type TMessageInitialOnlineUsers = {
+    online_users: string[]
+}
+
+export type TMessage = TMessageDirect | TMessageInitialOnlineUsers | TMessageStatusChange
 
 export enum EEvent {
     OFFLINE = "OFFLINE",
-    ONLINE = "ONLINE"
+    ONLINE = "ONLINE",
 }
 
-export type TMessageEvent = {
-    event: EEvent
+
+export type TMessageStatusChange = {
+    status: EEvent,
+    user_id: string
 }
 
 export type TChat = () => {
@@ -30,11 +37,11 @@ export type TChat = () => {
 
 
 export const Chat = () => {
-    const params = useParams<{ chatId: string }>()
     const connection = useRef<WebSocket | null>(null)
     const [messages, setMessages] = useState<TMessageDirect[]>([])
     const inputRef = useRef<HTMLInputElement>(null)
     const [users, setUsers] = useState<TUser[]>([])
+    const [onlineUsers, setOnlineUsers] = useState<string[]>([])
     const [activeChat, setActiveChat] = useState<string | null>(null)
     const auth = useAuth()
 
@@ -65,21 +72,33 @@ export const Chat = () => {
 
         // Listen for messages
         socket.addEventListener("message", (event) => {
-            let message: TMessageDirect
+            let message: TMessage | null
             try {
                 message = JSON.parse(event.data)
             } catch (err) {
-                message = {
-                    message: event.data,
-                    sender: "",
-                    recipient: ""
-                }
+                message = null
             }
             console.log(message)
+            if (!message) return
+
+            if ((message as TMessageInitialOnlineUsers).online_users) {
+                setOnlineUsers((message as TMessageInitialOnlineUsers).online_users || [])
+                return
+            }
+
+            if ((message as TMessageStatusChange).status) {
+                const { status, user_id } = message as TMessageStatusChange
+                if (status === EEvent.ONLINE) {
+                    setOnlineUsers([...onlineUsers, user_id])
+                } else if (status === EEvent.OFFLINE) {
+                    setOnlineUsers(onlineUsers.filter(u => u !== user_id))
+                }
+                return
+            }
 
             setMessages(v => [
                 ...v,
-                message
+                message as TMessageDirect
             ])
 
             console.log("Message from server,", event.data)
@@ -101,26 +120,24 @@ export const Chat = () => {
         setActiveChat(userId)
     }
 
-
+    console.log(onlineUsers, users)
     if (!auth.isLoggedIn) {
         return <Layout title="You are not logged in, please login"></Layout>
     }
 
     const messagesForChat = messages.filter(m => m.recipient === activeChat || m.sender === activeChat)
-    console.log(messagesForChat, activeChat, auth.token)
     return <Layout title="Chat">
         <div className={classes.grid}>
             <nav>
-                {users.filter(u => u.id !== auth.token?.sub).map(u => <span key={u.id} onClick={() => handleChatChange(u.id)} className={`${classes["user-nav-item"]} ${activeChat === u.id ? classes.active : ""}`}>{u.name}</span>)}
+                {users.filter(u => u.id !== auth.token?.sub).map(u => <span key={u.id} onClick={() => handleChatChange(u.id)} className={`${classes["user-nav-item"]} ${onlineUsers.includes(u.id) ? classes.online : ""} ${activeChat === u.id ? classes.active : ""}`}>{u.name}</span>)}
             </nav>
             <section>
-                <span>{params.chatId}</span> <br />
                 <div className={classes["message-container"]}>
                     {messagesForChat.map((message, i) => <span className={`${classes.message} ${(message.sender === auth.token?.sub) ? classes.sender : classes.receiver}`} key={i}>{message.message}</span>)}
                 </div>
                 <div className={classes.input}>
                     <input ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleClick()} />
-                    <button onClick={handleClick}>Send socket</button>
+                    <button onClick={handleClick}>Send</button>
                 </div>
             </section>
 
