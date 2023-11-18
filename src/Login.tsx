@@ -2,24 +2,23 @@ import { FormEventHandler } from "react"
 import { Layout } from "./layout"
 import { AuthService } from "./auth/AuthService"
 import { Link } from "react-router-dom"
+import { useAuth } from "./auth/useAuth"
+
+
 
 export const Login = () => {
+    const { login, isLoggedIn } = useAuth()
     const handleSubmit: FormEventHandler = async (e: any) => {
         e.preventDefault()
         const username = e.target.username.value
         const password = e.target.password.value
-        const response = await fetch("http://localhost:3000/login", {
-            method: "POST",
-            body: JSON.stringify({ username, password }),
-            headers: [
-                ["Content-Type", "application/json"]
-            ]
-        })
-        const { token } = await response.json()
-        console.log(token)
-        AuthService.Instance.token = token
+        login(username, password)
     }
+
+
+
     return <Layout title="Login">
+        <h3>{isLoggedIn ? "Logged in as " + AuthService.Instance.decodedToken?.sub : "Not logged in"}</h3>
         <form action="http://localhost:3000/login" onSubmit={handleSubmit} method="POST">
             <label htmlFor="username">Username</label>
             <input name="username" /> <br />

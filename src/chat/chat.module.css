@@ -3,6 +3,7 @@
     grid-template-areas: "chatlist content";
     grid-template-rows: 80vh;
     grid-template-columns: 200px 1fr;
+    padding-right: 100px;
     gap: 1em;
 }
 
@@ -22,10 +23,53 @@
     border-radius: 2px;
 }
 
+.active {
+    background-color: #f7f7f7;
+}
+
 .grid>nav>span.user-nav-item:hover {
     background-color: #f7f7f7;
+    cursor: pointer;
 }
 
 .grid>section {
     grid-area: "content";
+}
+
+.message-container {
+    display: grid;
+    flex-direction: column;
+    gap: 0.3em;
+}
+
+.message {
+    padding: 0.2em 0.4em;
+    border-radius: 10px;
+    color: white;
+}
+
+.receiver {
+    justify-self: flex-start;
+    width: fit-content;
+    background-color: rgb(62, 194, 255);
+}
+
+.sender {
+    justify-self: flex-end;
+    width: fit-content;
+    background-color: rgb(176, 168, 255);
+}
+
+.input {
+    margin-top: 1em;
+    display: flex;
+    gap: 1em;
+}
+
+.input>input {
+    flex: 9
+}
+
+.input>button {
+    flex: 1;
 }
