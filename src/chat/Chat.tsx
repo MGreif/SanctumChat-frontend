@@ -1,16 +1,20 @@
-import { json, useParams } from "react-router"
 import { Layout } from "../layout"
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AuthService } from "../auth/AuthService";
 import classes from "./chat.module.css"
 import { TUser } from "../types/user";
 import { EHTTPMethod, fetchRequest } from "../utils/fetch";
 import { useAuth } from "../auth/useAuth";
+import { UserNavItem } from "./UserNavItem";
 
-export type TMessageDirect = {
+export type TUIMessageMeta = {
+    read: boolean
+}
+
+export type TMessageDirect = TUIMessageMeta & {
     recipient: string,
     message: string,
-    sender: string
+    sender: string,
 }
 
 export type TMessageInitialOnlineUsers = {
@@ -45,6 +49,47 @@ export const Chat = () => {
     const [activeChat, setActiveChat] = useState<string | null>(null)
     const auth = useAuth()
 
+    const handleMessage = (event: MessageEvent<any>) => {
+        let message: TMessage | null
+        try {
+            message = JSON.parse(event.data)
+        } catch (err) {
+            message = null
+        }
+        console.log(message)
+        if (!message) return
+
+        if ((message as TMessageInitialOnlineUsers).online_users) {
+            console.log("Setting nitial online users")
+            setOnlineUsers((message as TMessageInitialOnlineUsers).online_users || [])
+            return
+        }
+
+        if ((message as TMessageStatusChange).status) {
+            const { status, user_id } = message as TMessageStatusChange
+            if (status === EEvent.ONLINE) {
+                console.log("setting online users", onlineUsers)
+                setOnlineUsers([...onlineUsers, user_id])
+            } else if (status === EEvent.OFFLINE) {
+                setOnlineUsers(onlineUsers.filter(u => u !== user_id))
+            }
+            return
+        }
+
+        setMessages(v => [
+            ...v,
+            { ...(message as TMessageDirect), read: false }
+        ])
+    }
+
+    useEffect(() => {
+        connection.current?.addEventListener("message", handleMessage)
+
+        return () => connection.current?.removeEventListener("message", handleMessage)
+
+    }, [connection.current, onlineUsers])
+
+
     useEffect(() => {
 
         if (!auth.isLoggedIn) {
@@ -71,38 +116,8 @@ export const Chat = () => {
         })
 
         // Listen for messages
-        socket.addEventListener("message", (event) => {
-            let message: TMessage | null
-            try {
-                message = JSON.parse(event.data)
-            } catch (err) {
-                message = null
-            }
-            console.log(message)
-            if (!message) return
 
-            if ((message as TMessageInitialOnlineUsers).online_users) {
-                setOnlineUsers((message as TMessageInitialOnlineUsers).online_users || [])
-                return
-            }
 
-            if ((message as TMessageStatusChange).status) {
-                const { status, user_id } = message as TMessageStatusChange
-                if (status === EEvent.ONLINE) {
-                    setOnlineUsers([...onlineUsers, user_id])
-                } else if (status === EEvent.OFFLINE) {
-                    setOnlineUsers(onlineUsers.filter(u => u !== user_id))
-                }
-                return
-            }
-
-            setMessages(v => [
-                ...v,
-                message as TMessageDirect
-            ])
-
-            console.log("Message from server,", event.data)
-        })
 
         connection.current = socket
 
@@ -118,6 +133,14 @@ export const Chat = () => {
 
     const handleChatChange = (userId: string) => {
         setActiveChat(userId)
+
+        const readMessages = messages.reduce<TMessageDirect[]>((acc, curr) => {
+            if (curr.sender !== activeChat) return [...acc, curr]
+
+            return [...acc, { ...curr, read: true }]
+        }, [])
+
+        setMessages(readMessages)
     }
 
     console.log(onlineUsers, users)
@@ -129,7 +152,14 @@ export const Chat = () => {
     return <Layout title="Chat">
         <div className={classes.grid}>
             <nav>
-                {users.filter(u => u.id !== auth.token?.sub).map(u => <span key={u.id} onClick={() => handleChatChange(u.id)} className={`${classes["user-nav-item"]} ${onlineUsers.includes(u.id) ? classes.online : ""} ${activeChat === u.id ? classes.active : ""}`}>{u.name}</span>)}
+                {users.filter(u => u.id !== auth.token?.sub).map(u =>
+                    <UserNavItem
+                        isActiveChat={activeChat === u.id}
+                        isOnline={onlineUsers.includes(u.id)}
+                        user={u}
+                        onClick={(user) => handleChatChange(user.id)}
+                        hasUnreadItems={messages.filter(m => m.sender === u.id).some(m => !m.read)}
+                    />)}
             </nav>
             <section>
                 <div className={classes["message-container"]}>
