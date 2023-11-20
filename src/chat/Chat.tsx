@@ -17,6 +17,11 @@ export type TMessageDirect = TUIMessageMeta & {
     sender: string,
 }
 
+export type TMessageDTO = Omit<TMessageDirect, "read" | "message"> & {
+    sender: string,
+    content: string
+}
+
 export type TMessageInitialOnlineUsers = {
     online_users: string[]
 }
@@ -48,6 +53,21 @@ export const Chat = () => {
     const [onlineUsers, setOnlineUsers] = useState<string[]>([])
     const [activeChat, setActiveChat] = useState<string | null>(null)
     const auth = useAuth()
+
+    useEffect(() => {
+        if (!activeChat) return
+        fetchRequest("http://localhost:3000/messages?origin=" + activeChat, {
+            method: EHTTPMethod.GET,
+        }).then(({ body }) => {
+            const b: TMessageDirect[] = (body as TMessageDTO[]).map(m => ({
+                message: m.content,
+                read: true,
+                recipient: m.recipient,
+                sender: m.sender
+            }))
+            setMessages(b)
+        })
+    }, [activeChat])
 
     const handleMessage = (event: MessageEvent<any>) => {
         let message: TMessage | null
