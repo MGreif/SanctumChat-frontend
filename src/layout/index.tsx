@@ -8,7 +8,7 @@ type TLayoutProps = PropsWithChildren<{
 
 export const Layout: FC<TLayoutProps> = ({ children, title }) => {
     const auth = useAuth()
-    return <span>
+    return <div className={classes.container}>
         <div className={classes.header}>
             <h2>
                 {title}
@@ -22,5 +22,5 @@ export const Layout: FC<TLayoutProps> = ({ children, title }) => {
         <div>
             {children}
         </div>
-    </span>
+    </div>
 }

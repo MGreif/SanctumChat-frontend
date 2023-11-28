@@ -4,6 +4,7 @@ import { EHTTPMethod, fetchRequest } from "../utils/fetch"
 export type TToken = {
     sub: string
     name: string
+    public_key: string
 }
 
 export class AuthService {

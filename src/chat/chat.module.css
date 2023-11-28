@@ -1,6 +1,6 @@
 .grid {
     display: grid;
-    grid-template-areas: "chatlist content";
+    grid-template-areas: "chatlist content" "textarea textarea";
     grid-template-rows: 80vh;
     grid-template-columns: 200px 1fr;
     padding-right: 100px;
@@ -8,7 +8,7 @@
 }
 
 .grid>nav {
-    grid-area: "chatlist";
+    grid-area: chatlist;
     border: 1px solid gray;
     padding: 1em;
     display: flex;
@@ -19,7 +19,6 @@
 
 .grid>nav>span.user-nav-item {
     padding: 0.5em;
-    border-color: 1px solid blue;
     border-radius: 2px;
     display: flex;
     justify-content: flex-start;
@@ -33,24 +32,42 @@
 }
 
 .grid>nav>span.user-nav-item:hover {
-    background-color: #d4d4d4;
+    background-color: #e3e2e2;
     cursor: pointer;
 }
 
 .grid>section {
-    grid-area: "content";
+    grid-area: content;
+}
+
+.chat {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 1em;
 }
 
 .message-container {
-    display: grid;
-    flex-direction: column;
     gap: 0.3em;
+    border: 1px solid black;
+    height: 100%;
+    border-radius: 5px;
+    padding: 1em;
+    overflow-y: auto;
+}
+
+.message-row {
+    display: grid;
+    width: 100%;
+    margin-bottom: 0.5em;
 }
 
 .message {
     padding: 0.2em 0.4em;
     border-radius: 10px;
     color: white;
+    height: fit-content;
+    word-break: break-all;
 }
 
 .receiver {
@@ -66,18 +83,9 @@
 }
 
 .input {
-    margin-top: 1em;
-    display: flex;
-    gap: 1em;
+    width: 100%;
 }
 
-.input>input {
-    flex: 9
-}
-
-.input>button {
-    flex: 1;
-}
 
 .dot {
     height: 10px;
@@ -91,4 +99,8 @@
 
 .dot.unread {
     background-color: orange;
+}
+
+.textarea {
+    grid-area: textarea;
 }

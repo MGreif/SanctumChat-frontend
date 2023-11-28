@@ -10,6 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mantine/core": "^7.2.2",
+    "@mantine/form": "^7.2.2",
+    "@mantine/hooks": "^7.2.2",
+    "@mantine/notifications": "^7.2.2",
+    "buffer": "^6.0.3",
+    "js-base64": "^3.7.5",
+    "jsencrypt": "^3.3.2",
     "jwt-decode": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -17,6 +24,7 @@
     "react-router-dom": "6.18.0"
   },
   "devDependencies": {
+    "@types/node-rsa": "^1.1.4",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",

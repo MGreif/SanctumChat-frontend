@@ -1,21 +1,33 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom"
+import {RouterProvider, createBrowserRouter} from "react-router-dom"
 import { Chat } from "./chat/Chat"
-import { MainPage } from "./MainPage"
 import { Login } from "./Login"
-
+import {FriendRequests} from "./FriendRequests";
+import {MantineProvider} from "@mantine/core";
+import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
+import {Notifications} from "@mantine/notifications";
+import {Register} from "./Register.tsx";
 export const App = () => {
 
-    const routes = createBrowserRouter([{
+    const routes = createBrowserRouter([
+    {
         path: "/",
-        element: <MainPage />,
+        element: <Chat />,
     },
     {
         path: "/login",
         element: <Login />,
     },
     {
-        path: "/chat/:chatId",
-        element: <Chat />
+        path: "/register",
+        element: <Register />,
+    },
+    {
+        path: "/friend-requests",
+        element: <FriendRequests />,
     }])
-    return <RouterProvider router={routes} />
+    return <MantineProvider>
+        <Notifications position={"bottom-center"} withinPortal={true}/>
+        <RouterProvider router={routes} />
+    </MantineProvider>
 }

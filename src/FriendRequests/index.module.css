@@ -1,0 +1,36 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    width: min(700px, 80vw);
+}
+
+.listitem {
+    display: flex;
+    justify-content: space-between;
+    padding: 1em;
+    align-items: center;
+    border: 1px solid gray;
+    border-radius: 5px;
+    box-shadow: 5px 11px 12px -3px rgba(0,0,0,0.43);
+
+}
+
+.buttons > button {
+    margin-right: 0.5em;
+}
+
+.buttons > button:last-child {
+    margin-right: 0;
+}
+
+.name {
+    font-weight: 500;
+}

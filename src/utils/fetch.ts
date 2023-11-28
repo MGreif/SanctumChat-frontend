@@ -1,7 +1,6 @@
 import { AuthService } from "../auth/AuthService"
-
-fetch
-
+import {useCallback, useEffect, useState} from "react";
+import {showErrorNotification} from "../misc/Notifications/Notifications.ts";
 export enum EHTTPMethod {
     GET = "GET",
     POST = "POST",
@@ -39,5 +38,49 @@ export async function fetchRequest<RequestBody = object, ResponseBody = object> 
     return {
         body: await response.json() as ResponseBody,
         response,
+    }
+}
+
+type TuseFetchEndpointArgs<RequestBody> = {
+    url: string
+    fetchOptions: TfetchOptions<RequestBody>
+}
+
+type TuseFetchEndpointOptions = {
+    skip?: boolean
+}
+
+export function useFetchEndpoint<RequestBody = object, ResponseBody = object> (fetchArgs: TuseFetchEndpointArgs<RequestBody>, options?: TuseFetchEndpointOptions) {
+    const [data, setData] = useState<ResponseBody>()
+    const [isLoading, setIsLoading] = useState(false)
+    const refetch = useCallback((body?: RequestBody) => {
+        if (options?.skip) return
+        setIsLoading(true)
+        fetchRequest<RequestBody, ResponseBody>(fetchArgs.url, {
+            ...fetchArgs.fetchOptions,
+            body: body,
+        }).then(({ body, response }) => {
+            setIsLoading(false)
+            if (!response.ok) {
+                showErrorNotification({
+                    title: "Fetching failed",
+                    message: fetchArgs.url
+                })
+                return
+            }
+
+            setData(body)
+        })
+    }, [])
+
+    useEffect(() => {
+        if (options?.skip) return
+        refetch(fetchArgs.fetchOptions.body)
+    }, [])
+
+    return {
+        data,
+        refetch,
+        isLoading
     }
 }
