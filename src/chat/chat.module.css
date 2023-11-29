@@ -1,10 +1,10 @@
 .grid {
     display: grid;
     grid-template-areas: "chatlist content" "textarea textarea";
-    grid-template-rows: 80vh;
+    grid-template-rows: 1fr 0.2fr;
     grid-template-columns: 200px 1fr;
-    padding-right: 100px;
     gap: 1em;
+    height: 100%;
 }
 
 .grid>nav {
@@ -54,6 +54,7 @@
     border-radius: 5px;
     padding: 1em;
     overflow-y: auto;
+    box-shadow: 2px 2px 12px 1px #656565;
 }
 
 .message-row {

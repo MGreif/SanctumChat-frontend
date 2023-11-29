@@ -1,12 +1,12 @@
 import {RouterProvider, createBrowserRouter} from "react-router-dom"
 import { Chat } from "./chat/Chat"
-import { Login } from "./Login"
+import { Login } from "./Auth/Login.tsx"
 import {FriendRequests} from "./FriendRequests";
 import {MantineProvider} from "@mantine/core";
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import {Notifications} from "@mantine/notifications";
-import {Register} from "./Register.tsx";
+import {Register} from "./Auth/Register.tsx";
 export const App = () => {
 
     const routes = createBrowserRouter([

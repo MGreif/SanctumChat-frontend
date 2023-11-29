@@ -1,9 +1,23 @@
 .header {
     display: flex;
     justify-content: space-between;
+    height: 60px;
 }
 
 .container {
     height: 100vh;
     padding: 1em;
+}
+
+.links > * {
+    margin-right: 1em;
+}
+
+.links > *:last-child {
+    margin-right: 0;
+}
+
+.content {
+    display: grid;
+    height: calc(100% - 60px);
 }

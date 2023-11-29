@@ -1,0 +1,22 @@
+.formcontainer {
+    align-self: center;
+    justify-self: center;
+    border-radius: 10px;
+    padding: 1em;
+    width: min(80vh, 600px);
+    box-shadow: 2px 2px 12px 3px #656565;
+}
+
+.formcontainer label::after {
+    content: " *";
+    color: red;
+}
+
+.formcontainer h2 {
+    text-align: center;
+}
+
+.formcontainer .actions {
+    display: flex;
+    justify-content: space-evenly;
+}
