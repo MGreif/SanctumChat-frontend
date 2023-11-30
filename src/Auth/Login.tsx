@@ -1,6 +1,5 @@
 import {FormEventHandler, useEffect} from "react"
 import { Layout } from "../layout"
-import { AuthService } from "../auth/AuthService.ts"
 import { useAuth } from "../auth/useAuth.tsx"
 import {useNavigate} from "react-router";
 import classes from "./index.module.css"
@@ -24,7 +23,6 @@ export const Login = () => {
 
 
     return <Layout title="Login" className={classes.layout}>
-        <h3>{isLoggedIn ? "Logged in as " + AuthService.Instance.decodedToken?.sub : "Not logged in"}</h3>
         <div className={classes.formcontainer}>
         <form action="http://localhost:3000/login" onSubmit={handleSubmit} method="POST">
             <h2>Login</h2>

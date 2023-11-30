@@ -1,20 +1,23 @@
-import { showNotification as sN } from "@mantine/notifications";
+import { showNotification as sN, NotificationData } from "@mantine/notifications";
+import {ReactNode} from "react";
 
-type TShowNotificationArgs = {
-    type: "success" | "error"
+type TShowNotificationArgs = NotificationData & {
+    type: "success" | "error" | "info"
     title: string,
-    message: string
+    message: ReactNode
 }
 
 const colorMap = {
     "success": "green",
-    "error": "red"
+    "error": "red",
+    "info": "blue"
 }
-export const showNotification = ({ message, title, type }: TShowNotificationArgs) => {
+export const showNotification = ({ message, title, type, ...nD }: TShowNotificationArgs) => {
     sN({
         message,
         title,
-        color: colorMap[type]
+        color: colorMap[type],
+        ...nD
     })
 }
 

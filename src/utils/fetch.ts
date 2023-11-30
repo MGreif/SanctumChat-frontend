@@ -10,10 +10,12 @@ export enum EHTTPMethod {
 }
 
 
-export type TfetchOptions<RequestBody> = {
+export type TfetchOptions<RequestBody, ResponseBody, ResponseBodyAfterTransform> = {
     method: EHTTPMethod,
+    transform?: (response: ResponseBody | undefined) => ResponseBodyAfterTransform
     body?: RequestBody
     fetchOptions?: RequestInit
+
 }
 
 export type TfetchReturn<Body = object> = {
@@ -21,10 +23,10 @@ export type TfetchReturn<Body = object> = {
     body: Body,
 }
 
-export async function fetchRequest<RequestBody = object, ResponseBody = object> (url: string, {
+export async function fetchRequest<RequestBody = object, ResponseBody = object, ResponseBodyAfterTransform = object> (url: string, {
     method,
     body,
-}: TfetchOptions<RequestBody>): Promise<TfetchReturn<ResponseBody>> {
+}: TfetchOptions<RequestBody, ResponseBody, ResponseBodyAfterTransform>): Promise<TfetchReturn<ResponseBody>> {
     const authHeader: [string, string] | null = AuthService.Instance.token ? ["authorization", `Bearer ${AuthService.Instance.token}`] : null
     const response = await fetch(url, {
         method: method as string,
@@ -41,22 +43,22 @@ export async function fetchRequest<RequestBody = object, ResponseBody = object> 
     }
 }
 
-type TuseFetchEndpointArgs<RequestBody> = {
+type TuseFetchEndpointArgs<RequestBody, ResponseBody, ResponseBodyAfterTransform> = {
     url: string
-    fetchOptions: TfetchOptions<RequestBody>
+    fetchOptions: TfetchOptions<RequestBody, ResponseBody, ResponseBodyAfterTransform>
 }
 
 type TuseFetchEndpointOptions = {
     skip?: boolean
 }
 
-export function useFetchEndpoint<RequestBody = object, ResponseBody = object> (fetchArgs: TuseFetchEndpointArgs<RequestBody>, options?: TuseFetchEndpointOptions) {
-    const [data, setData] = useState<ResponseBody>()
+export function useFetchEndpoint<RequestBody = object, ResponseBody = object, ResponseBodyAfterTransform = ResponseBody> (fetchArgs: TuseFetchEndpointArgs<RequestBody, ResponseBody, ResponseBodyAfterTransform>, options?: TuseFetchEndpointOptions) {
+    const [data, setData] = useState<ResponseBodyAfterTransform>()
     const [isLoading, setIsLoading] = useState(false)
     const refetch = useCallback((body?: RequestBody) => {
         if (options?.skip) return
         setIsLoading(true)
-        fetchRequest<RequestBody, ResponseBody>(fetchArgs.url, {
+        fetchRequest<RequestBody, ResponseBody, ResponseBodyAfterTransform>(fetchArgs.url, {
             ...fetchArgs.fetchOptions,
             body: body,
         }).then(({ body, response }) => {
@@ -69,7 +71,8 @@ export function useFetchEndpoint<RequestBody = object, ResponseBody = object> (f
                 return
             }
 
-            setData(body)
+            const data = fetchArgs.fetchOptions.transform ? fetchArgs.fetchOptions.transform(body) : body
+            setData(data as ResponseBodyAfterTransform)
         })
     }, [])
 

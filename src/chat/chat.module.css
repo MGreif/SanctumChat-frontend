@@ -45,6 +45,7 @@
     flex-direction: column;
     justify-content: flex-end;
     gap: 1em;
+    height: 60vh;
 }
 
 .message-container {
@@ -69,6 +70,7 @@
     color: white;
     height: fit-content;
     word-break: break-all;
+    box-shadow: 1px 1px 4px 0px #656565;
 }
 
 .receiver {
@@ -104,4 +106,12 @@
 
 .textarea {
     grid-area: textarea;
+}
+
+.friendrequest > button {
+    margin-right: 0.5em;
+}
+
+.friendrequest > button:last-child {
+    margin-right: 0
 }
