@@ -24,7 +24,7 @@ export const Login = () => {
 
     return <Layout title="Login" className={classes.layout}>
         <div className={classes.formcontainer}>
-        <form action="http://localhost:3000/login" onSubmit={handleSubmit} method="POST">
+        <form action="/login" onSubmit={handleSubmit} method="POST">
             <h2>Login</h2>
             <label htmlFor="username">Username</label> <br/>
             <TextInput name="username" /> <br />

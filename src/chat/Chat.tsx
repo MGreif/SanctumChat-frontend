@@ -6,11 +6,11 @@ import {TUser, TUserRaw} from "../types/user";
 import {EHTTPMethod, fetchRequest, useFetchEndpoint} from "../utils/fetch";
 import {useAuth} from "../auth/useAuth";
 import {UserNavItem} from "./UserNavItem";
-import {Button, Textarea, TextInput} from "@mantine/core";
+import {Button, FileInput, TextInput} from "@mantine/core";
 import {buildApiUrl} from "../constants.ts";
 import {fromBase64} from "js-base64";
 import {JSEncryptRSAKey} from "jsencrypt/lib/JSEncryptRSAKey";
-import {showNotification} from "../misc/Notifications/Notifications.ts";
+import {showErrorNotification, showNotification} from "../misc/Notifications/Notifications.ts";
 import {TApiResponse} from "../types/Api.ts";
 import {notifications} from "@mantine/notifications";
 
@@ -54,21 +54,27 @@ export type TMessageFriendRequest = {
     friend_request_id: string
 }
 
-const decryptMessages = (messages: TMessageDirect[], private_key_base64: string) => {
-    const private_key = fromBase64(private_key_base64)
-    const selfRSA = new JSEncryptRSAKey(private_key)
-    const decryptedMessages = messages.map(m => {
-        const self_send = m.sender === AuthService.Instance.decodedToken?.sub
+const decryptMessages = (messages: TMessageDirect[], private_key: string): TMessageDirect[] | null => {
+    try {
+        const selfRSA = new JSEncryptRSAKey(private_key)
+        return messages.map(m => {
+            const self_send = m.sender === AuthService.Instance.decodedToken?.sub
 
-        if (self_send) {
-            m.message_decrypted = selfRSA.decrypt(m.message_self_encrypted)
-        } else {
-            m.message_decrypted = selfRSA.decrypt(m.message)
-        }
+            if (self_send) {
+                m.message_decrypted = selfRSA.decrypt(m.message_self_encrypted)
+            } else {
+                m.message_decrypted = selfRSA.decrypt(m.message)
+            }
 
-        return m
-    })
-    return decryptedMessages
+            return m
+        })
+    } catch (err) {
+        showErrorNotification({
+            message: "Could not decrypt messages. Check RSA Private key file",
+            title: "Decryption error"
+        })
+        return null
+    }
 }
 
 
@@ -76,7 +82,8 @@ export const Chat = () => {
     const connection = useRef<WebSocket | null>(null)
     const [messages, _setMessages] = useState<TMessageDirect[]>([])
     const inputRef = useRef<HTMLInputElement>(null)
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const [privateKey, setPrivateKey] = useState<string | null>(null)
+    const privateKeyRef = useRef(privateKey)
     const chatContainer = useRef<HTMLDivElement>(null)
     const auth = useAuth()
 
@@ -96,18 +103,18 @@ export const Chat = () => {
         chatContainer.current.scrollTop = chatContainer.current.offsetHeight
     }, [messages])
     const setMessages = (messages: TMessageDirect[]) => {
-        const private_key_base64 = textareaRef.current?.value
-        if (!private_key_base64) {
+        if (!privateKey) {
             _setMessages(messages)
             return
         }
 
-        const decrypted = decryptMessages(messages, private_key_base64)
+        const decrypted = decryptMessages(messages, privateKey)
+        if (!decrypted) return
         _setMessages(decrypted)
     }
     useEffect(() => {
         if (!activeChat) return
-        fetchRequest("http://localhost:3000/messages?origin=" + activeChat, {
+        fetchRequest(buildApiUrl("/messages?origin=" + activeChat), {
             method: EHTTPMethod.GET,
         }).then(({ body }) => {
             const b: TMessageDirect[] = (body as TMessageDTO[]).map(m => ({
@@ -178,10 +185,10 @@ export const Chat = () => {
                 {...(message as TMessageDirect), read: false}
             ]
 
-            const private_key_base64 = textareaRef.current?.value
-            if (!private_key_base64) return adjusted
-            const decrypted = decryptMessages(adjusted, private_key_base64)
-            return decrypted
+            console.log(privateKeyRef.current)
+            if (!privateKeyRef.current) return adjusted
+            const decrypted = decryptMessages(adjusted, privateKeyRef.current)
+            return decrypted || adjusted
         })
     }
 
@@ -202,7 +209,7 @@ export const Chat = () => {
         // close active connection
         connection.current?.close()
 
-        const socket = new WebSocket(`ws://127.0.0.1:3000/ws?token=${AuthService.Instance.token}`)
+        const socket = new WebSocket(buildApiUrl(`/ws?token=${AuthService.Instance.token}`, "wss://"))
         // Connection opened
         socket.addEventListener("open", (event) => {
             console.log("Connection established ...", event)
@@ -250,10 +257,21 @@ export const Chat = () => {
         setMessages(readMessages)
     }
 
-    const handleTextAreaApply = () => {
-        const private_key_base64 = textareaRef.current?.value
-        if (!private_key_base64) return
-        const decryptedMessages = decryptMessages(messages, private_key_base64)
+
+    const handleFileInput = async (file: File | null) => {
+        const fileContent = await file?.text()
+        if (!fileContent) return
+        setPrivateKey(fileContent)
+        privateKeyRef.current = fileContent
+    }
+
+    useEffect(() => {
+        if (!privateKey) return
+        decryptCurrentMessages(privateKey)
+    }, [privateKey])
+    const decryptCurrentMessages = async (private_key: string) => {
+        const decryptedMessages = decryptMessages(messages, private_key)
+        if (!decryptedMessages) return
         setMessages(decryptedMessages)
     }
 
@@ -281,7 +299,9 @@ export const Chat = () => {
                 </div>
                     <TextInput className={classes.input} ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleClick()} />
             </section>
-            <div className={classes.textarea}><Textarea rows={8} placeholder={"Insert base64 encoded private key here"} ref={textareaRef} className={classes.textarea}/><Button onClick={() => handleTextAreaApply()}>Apply</Button></div>
+            <div className={classes.textarea}>
+                <FileInput accept={".pem"} label={"Select RSA private key (.pem)"} onChange={handleFileInput} />
+            </div>
         </div>
     </Layout>
 }

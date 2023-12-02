@@ -85,7 +85,7 @@ export const useAuth = () => {
     }
 
     const logout = async () => {
-        const response = await fetchRequest("http://localhost:3000/logout", {
+        const response = await fetchRequest(buildApiUrl("/logout"), {
             method: EHTTPMethod.POST,
         })
 

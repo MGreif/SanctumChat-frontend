@@ -1,5 +1,6 @@
 import { jwtDecode } from "jwt-decode"
 import { EHTTPMethod, fetchRequest } from "../utils/fetch"
+import {buildApiUrl} from "../constants.ts";
 
 export type TToken = {
     sub: string
@@ -43,7 +44,7 @@ export class AuthService {
         const savedToken = sessionStorage.getItem("token")
         if (!savedToken) return
         this.token = savedToken
-        const { body, response } = await fetchRequest<{ token: string }, { token: string }>("http://localhost:3000/token", {
+        const { body, response } = await fetchRequest<{ token: string }, { token: string }>(buildApiUrl("/token"), {
             method: EHTTPMethod.POST
         })
         const token = body.token
