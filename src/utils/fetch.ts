@@ -1,6 +1,7 @@
 import { AuthService } from "../auth/AuthService"
-import {useCallback, useEffect, useState} from "react";
-import {showErrorNotification} from "../misc/Notifications/Notifications.ts";
+import { useCallback, useEffect, useState } from "react";
+import { showErrorNotification } from "../misc/Notifications/Notifications.ts";
+import { TApiResponse } from "../types/Api.ts";
 export enum EHTTPMethod {
     GET = "GET",
     POST = "POST",
@@ -37,8 +38,15 @@ export async function fetchRequest<RequestBody = object, ResponseBody = object, 
 
         ]
     })
+
+    let json: ResponseBody = {} as ResponseBody
+
+    try {
+        json = await response.json() as ResponseBody
+    } catch (err) { }
+
     return {
-        body: await response.json() as ResponseBody,
+        body: json,
         response,
     }
 }
@@ -64,10 +72,16 @@ export function useFetchEndpoint<RequestBody = object, ResponseBody = object, Re
         }).then(({ body, response }) => {
             setIsLoading(false)
             if (!response.ok) {
-                showErrorNotification({
-                    title: "Fetching failed",
-                    message: fetchArgs.url
-                })
+
+                if ((body as TApiResponse<any>).message) {
+                    showErrorNotification({
+                        title: "Fetching failed",
+                        message: (body as TApiResponse<any>).message
+                    })
+                    return
+                }
+
+
                 return
             }
 

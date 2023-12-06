@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode"
 import { EHTTPMethod, fetchRequest } from "../utils/fetch"
-import {buildApiUrl} from "../constants.ts";
+import { buildApiUrl } from "../constants.ts";
 
 export type TToken = {
     sub: string
@@ -32,6 +32,8 @@ export class AuthService {
         this.isLoggedIn = !!token
 
         if (!token) return
+        console.log(token)
+        if (typeof token !== "string") return
         sessionStorage.setItem("token", token)
         this._decodedToken = jwtDecode(token) as TToken
     }
@@ -40,7 +42,7 @@ export class AuthService {
         return this._decodedToken
     }
 
-    public async refreshToken () {
+    public async refreshToken (): Promise<void> {
         const savedToken = sessionStorage.getItem("token")
         if (!savedToken) return
         this.token = savedToken
@@ -50,8 +52,11 @@ export class AuthService {
         const token = body.token
 
         if (token && response.ok) {
-            console.log("token")
             this.token = token
+        }
+
+        if (!response.ok && response.status === 401) {
+            return Promise.reject()
         }
     }
 }

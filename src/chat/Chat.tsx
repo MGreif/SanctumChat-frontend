@@ -1,18 +1,18 @@
-import {Layout} from "../layout"
-import {useCallback, useEffect, useRef, useState} from "react";
-import {AuthService} from "../auth/AuthService";
+import { Layout } from "../layout"
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AuthService } from "../auth/AuthService";
 import classes from "./chat.module.css"
-import {TUser, TUserRaw} from "../types/user";
-import {EHTTPMethod, fetchRequest, useFetchEndpoint} from "../utils/fetch";
-import {useAuth} from "../auth/useAuth";
-import {UserNavItem} from "./UserNavItem";
-import {Button, FileInput, TextInput} from "@mantine/core";
-import {buildApiUrl} from "../constants.ts";
-import {fromBase64} from "js-base64";
-import {JSEncryptRSAKey} from "jsencrypt/lib/JSEncryptRSAKey";
-import {showErrorNotification, showNotification} from "../misc/Notifications/Notifications.ts";
-import {TApiResponse} from "../types/Api.ts";
-import {notifications} from "@mantine/notifications";
+import { TUser, TUserRaw } from "../types/user";
+import { EHTTPMethod, fetchRequest, useFetchEndpoint } from "../utils/fetch";
+import { useAuth } from "../auth/useAuth";
+import { UserNavItem } from "./UserNavItem";
+import { Button, FileInput, TextInput } from "@mantine/core";
+import { USE_SSL, buildApiUrl } from "../constants.ts";
+import { fromBase64 } from "js-base64";
+import { JSEncryptRSAKey } from "jsencrypt/lib/JSEncryptRSAKey";
+import { showErrorNotification, showNotification } from "../misc/Notifications/Notifications.ts";
+import { TApiResponse } from "../types/Api.ts";
+import { notifications } from "@mantine/notifications";
 
 export type TUIMessageMeta = {
     read: boolean,
@@ -24,6 +24,7 @@ export type TMessageDirect = TUIMessageMeta & {
     sender: string,
     message_self_encrypted: string,
     message_decrypted?: string
+    message_verified?: boolean
 }
 
 export type TMessageDTO = Omit<TMessageDirect, "read" | "message" | "message_self_encrypted" | "message_decrypted"> & {
@@ -36,7 +37,7 @@ export type TMessageInitialOnlineUsers = {
     online_users: string[]
 }
 
-export type TMessage = TMessageDirect | TMessageInitialOnlineUsers | TMessageStatusChange | TMessageFriendRequest
+export type TMessage = TMessageDirect | TMessageInitialOnlineUsers | TMessageStatusChange | TMessageFriendRequest | TMessageNotification
 
 export enum EEvent {
     OFFLINE = "OFFLINE",
@@ -54,7 +55,13 @@ export type TMessageFriendRequest = {
     friend_request_id: string
 }
 
-const decryptMessages = (messages: TMessageDirect[], private_key: string): TMessageDirect[] | null => {
+export type TMessageNotification = {
+    title: string,
+    message: string,
+    status: "error" | "success" | "info"
+}
+
+const decryptMessages = (messages: TMessageDirect[], private_key: string, recipient_public_key: string): TMessageDirect[] | null => {
     try {
         const selfRSA = new JSEncryptRSAKey(private_key)
         return messages.map(m => {
@@ -85,15 +92,40 @@ export const Chat = () => {
     const [privateKey, setPrivateKey] = useState<string | null>(null)
     const privateKeyRef = useRef(privateKey)
     const chatContainer = useRef<HTMLDivElement>(null)
+    const handleMessageReceive = useCallback((message: TMessageDirect) => {
+        _setMessages(messages => {
+            const adjusted = [
+                ...messages,
+                { ...message, read: false }
+            ]
+
+            const recipient = users?.find(u => u.username === activeChat)
+            if (!recipient) return adjusted
+
+            if (!privateKeyRef.current) return adjusted
+
+            const decrypted = decryptMessages(adjusted, privateKeyRef.current, recipient.public_key)
+            return decrypted || adjusted
+        })
+    }, [messages])
+
+    useEffect(() => {
+        localRef.current.onDirectMessageReceive = handleMessageReceive
+    }, [handleMessageReceive])
+
+    const localRef = useRef({
+        onDirectMessageReceive: handleMessageReceive,
+
+    })
     const auth = useAuth()
 
     const { data: users, refetch } = useFetchEndpoint<object, TApiResponse<TUserRaw[]>, TUser[]>({
         url: buildApiUrl("/friends"),
         fetchOptions: {
-            transform: (response) => response?.data?.map(u => ({...u, public_key: String.fromCharCode(...u.public_key) })) || [],
+            transform: (response) => response?.data?.map(u => ({ ...u, public_key: String.fromCharCode(...u.public_key) })) || [],
             method: EHTTPMethod.GET,
         }
-    }, { skip: !auth.isLoggedIn})
+    }, { skip: !auth.isLoggedIn })
 
     const [onlineUsers, setOnlineUsers] = useState<string[]>([])
     const [activeChat, setActiveChat] = useState<string | null>(null)
@@ -102,13 +134,16 @@ export const Chat = () => {
         if (!chatContainer.current) return
         chatContainer.current.scrollTop = chatContainer.current.offsetHeight
     }, [messages])
+
     const setMessages = (messages: TMessageDirect[]) => {
         if (!privateKey) {
             _setMessages(messages)
             return
         }
+        const recipient = users?.find(u => u.username === activeChat)
+        if (!recipient) return
 
-        const decrypted = decryptMessages(messages, privateKey)
+        const decrypted = decryptMessages(messages, privateKey, recipient.public_key)
         if (!decrypted) return
         _setMessages(decrypted)
     }
@@ -128,8 +163,10 @@ export const Chat = () => {
         })
     }, [activeChat])
 
+
+
     const handleFriendRequestClick = useCallback(({ id, accepted }: { id: string, accepted: boolean }) => {
-        fetchRequest<{ accepted: boolean }>(buildApiUrl("/friend-requests/"+id), {
+        fetchRequest<{ accepted: boolean }>(buildApiUrl("/friend-requests/" + id), {
             method: EHTTPMethod.PATCH,
             body: {
                 accepted
@@ -146,7 +183,6 @@ export const Chat = () => {
         } catch (err) {
             message = null
         }
-        console.log(message)
         if (!message) return
 
         if ((message as TMessageInitialOnlineUsers).online_users) {
@@ -157,7 +193,6 @@ export const Chat = () => {
         if ((message as TMessageStatusChange).status) {
             const { status, user_id } = message as TMessageStatusChange
             if (status === EEvent.ONLINE) {
-                console.log("setting online users", onlineUsers)
                 setOnlineUsers([...onlineUsers, user_id])
             } else if (status === EEvent.OFFLINE) {
                 setOnlineUsers(onlineUsers.filter(u => u !== user_id))
@@ -178,18 +213,17 @@ export const Chat = () => {
             })
         }
 
+        if ((message as TMessageNotification).status) {
+            const { title, status, message: m } = message as TMessageNotification
+            showNotification({
+                type: status,
+                message: m,
+                title: title
+            })
+        }
 
-        _setMessages(messages => {
-            const adjusted = [
-                ...messages,
-                {...(message as TMessageDirect), read: false}
-            ]
 
-            console.log(privateKeyRef.current)
-            if (!privateKeyRef.current) return adjusted
-            const decrypted = decryptMessages(adjusted, privateKeyRef.current)
-            return decrypted || adjusted
-        })
+        localRef.current.onDirectMessageReceive(message as TMessageDirect)
     }
 
     useEffect(() => {
@@ -209,7 +243,7 @@ export const Chat = () => {
         // close active connection
         connection.current?.close()
 
-        const socket = new WebSocket(buildApiUrl(`/ws?token=${AuthService.Instance.token}`, "wss://"))
+        const socket = new WebSocket(buildApiUrl(`/ws?token=${AuthService.Instance.token}`, USE_SSL ? "wss://" : "ws://"))
         // Connection opened
         socket.addEventListener("open", (event) => {
             console.log("Connection established ...", event)
@@ -234,13 +268,12 @@ export const Chat = () => {
         if (!recipient) return
         const public_key_encoded = recipient.public_key
         const public_key_decoded = fromBase64(public_key_encoded)
-        console.log(public_key_decoded)
         const message = inputRef.current.value
         const recipientRSA = new JSEncryptRSAKey(public_key_decoded)
         const selfRSA = new JSEncryptRSAKey(fromBase64(AuthService.Instance.decodedToken!.public_key))
         const encrypted_message = recipientRSA.encrypt(message)
         const message_self_encrypted = selfRSA.encrypt(message)
-        const preparedText = JSON.stringify({ recipient: activeChat, message: encrypted_message, message_self_encrypted})
+        const preparedText = JSON.stringify({ recipient: activeChat, message: encrypted_message, message_self_encrypted })
         inputRef.current?.value && connection.current?.send(preparedText)
         inputRef.current.value = ""
     }
@@ -269,13 +302,16 @@ export const Chat = () => {
         if (!privateKey) return
         decryptCurrentMessages(privateKey)
     }, [privateKey])
+
     const decryptCurrentMessages = async (private_key: string) => {
-        const decryptedMessages = decryptMessages(messages, private_key)
+        const recipient = users?.find(u => u.username === activeChat)
+        if (!recipient) return
+
+        const decryptedMessages = decryptMessages(messages, private_key, recipient.public_key)
         if (!decryptedMessages) return
         setMessages(decryptedMessages)
     }
 
-    console.log(onlineUsers, users)
     if (!auth.isLoggedIn) {
         return <Layout title="You are not logged in, please login"></Layout>
     }
@@ -286,6 +322,7 @@ export const Chat = () => {
             <nav>
                 {users?.filter(u => u.username !== auth.token?.sub).map(u =>
                     <UserNavItem
+                        key={u.username}
                         isActiveChat={activeChat === u.username}
                         isOnline={onlineUsers.includes(u.username)}
                         user={u}
@@ -295,9 +332,17 @@ export const Chat = () => {
             </nav>
             <section className={classes.chat}>
                 <div className={classes["message-container"]} ref={chatContainer}>
-                    {messagesForChat.map((message, i) => <div className={classes["message-row"]}><span className={`${classes.message} ${(message.sender === auth.token?.sub) ? classes.sender : classes.receiver}`} key={i}>{message.message_decrypted || "Encrypted"}</span></div>)}
+                    {messagesForChat.map((message, i) =>
+                        <div className={classes["message-row"]}>
+                            <span
+                                className={`${classes.message} ${(message.sender === auth.token?.sub) ? classes.sender : classes.receiver}`}
+                                key={i}>
+                                {message.message_decrypted || "Encrypted"}
+                            </span>
+                        </div>
+                    )}
                 </div>
-                    <TextInput className={classes.input} ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleClick()} />
+                <TextInput className={classes.input} ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleClick()} />
             </section>
             <div className={classes.textarea}>
                 <FileInput accept={".pem"} label={"Select RSA private key (.pem)"} onChange={handleFileInput} />

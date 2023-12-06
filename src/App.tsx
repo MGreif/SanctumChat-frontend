@@ -1,15 +1,14 @@
-import {RouterProvider, createBrowserRouter} from "react-router-dom"
+import { RouterProvider, createBrowserRouter } from "react-router-dom"
 import { Chat } from "./chat/Chat"
 import { Login } from "./Auth/Login.tsx"
-import {FriendRequests} from "./FriendRequests";
-import {MantineProvider} from "@mantine/core";
+import { FriendRequests } from "./FriendRequests";
+import { MantineProvider } from "@mantine/core";
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
-import {Notifications} from "@mantine/notifications";
-import {Register} from "./Auth/Register.tsx";
-export const App = () => {
-
-    const routes = createBrowserRouter([
+import { Notifications } from "@mantine/notifications";
+import { Register } from "./Auth/Register.tsx";
+import { useEffect } from "react";
+const routes = createBrowserRouter([
     {
         path: "/",
         element: <Chat />,
@@ -26,8 +25,20 @@ export const App = () => {
         path: "/friend-requests",
         element: <FriendRequests />,
     }])
+
+export const App = () => {
+
+    useEffect(() => {
+        console.log("APP MOUNT")
+    }, [])
+
+
+    useEffect(() => {
+        console.log("APP RENDER")
+    })
+
     return <MantineProvider>
-        <Notifications position={"bottom-center"} withinPortal={true}/>
+        <Notifications position={"bottom-center"} withinPortal={true} />
         <RouterProvider router={routes} />
     </MantineProvider>
 }
