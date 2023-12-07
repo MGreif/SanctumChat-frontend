@@ -18,6 +18,8 @@ export type TUIMessageMeta = {
     read: boolean,
 }
 
+type TYPE = "SOCKET_MESSAGE_DIRECT" | "SOCKET_MESSAGE_NOTIFICATION" | "SOCKET_MESSAGE_EVENT" | "SOCKET_MESSAGE_ONLINE_USERS" | "SOCKET_MESSAGE_STATUS_CHANGE" | "SOCKET_MESSAGE_FRIEND_REQUEST"
+
 export type TMessageDirect = TUIMessageMeta & {
     recipient: string,
     message: string,
@@ -31,10 +33,12 @@ export type TMessageDTO = Omit<TMessageDirect, "read" | "message" | "message_sel
     sender: string,
     content: string
     content_self_encrypted: string,
+    TYPE: TYPE
 }
 
 export type TMessageInitialOnlineUsers = {
     online_users: string[]
+    TYPE: TYPE
 }
 
 export type TMessage = TMessageDirect | TMessageInitialOnlineUsers | TMessageStatusChange | TMessageFriendRequest | TMessageNotification
@@ -48,17 +52,22 @@ export enum EEvent {
 export type TMessageStatusChange = {
     status: EEvent,
     user_id: string
+    TYPE: TYPE
 }
 
 export type TMessageFriendRequest = {
     sender_username: string,
     friend_request_id: string
+    TYPE: TYPE
+
 }
 
 export type TMessageNotification = {
     title: string,
     message: string,
     status: "error" | "success" | "info"
+    TYPE: TYPE
+
 }
 
 const decryptMessages = (messages: TMessageDirect[], private_key: string, recipient_public_key: string): TMessageDirect[] | null => {
@@ -185,12 +194,12 @@ export const Chat = () => {
         }
         if (!message) return
 
-        if ((message as TMessageInitialOnlineUsers).online_users) {
+        if ((message as TMessageInitialOnlineUsers).TYPE === "SOCKET_MESSAGE_ONLINE_USERS") {
             setOnlineUsers((message as TMessageInitialOnlineUsers).online_users || [])
             return
         }
 
-        if ((message as TMessageStatusChange).status) {
+        if ((message as TMessageStatusChange).TYPE === "SOCKET_MESSAGE_STATUS_CHANGE") {
             const { status, user_id } = message as TMessageStatusChange
             if (status === EEvent.ONLINE) {
                 setOnlineUsers([...onlineUsers, user_id])
@@ -200,7 +209,7 @@ export const Chat = () => {
             return
         }
 
-        if ((message as TMessageFriendRequest).friend_request_id) {
+        if ((message as TMessageFriendRequest).TYPE === "SOCKET_MESSAGE_FRIEND_REQUEST") {
             const { sender_username, friend_request_id } = message as TMessageFriendRequest
             showNotification({
                 type: "info",
@@ -213,7 +222,7 @@ export const Chat = () => {
             })
         }
 
-        if ((message as TMessageNotification).status) {
+        if ((message as TMessageNotification).TYPE === "SOCKET_MESSAGE_NOTIFICATION") {
             const { title, status, message: m } = message as TMessageNotification
             showNotification({
                 type: status,
