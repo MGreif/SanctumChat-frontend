@@ -13,6 +13,7 @@ import { JSEncryptRSAKey } from "jsencrypt/lib/JSEncryptRSAKey";
 import { showErrorNotification, showNotification } from "../misc/Notifications/Notifications.ts";
 import { TApiResponse } from "../types/Api.ts";
 import { notifications } from "@mantine/notifications";
+import { sha256 } from "js-sha256";
 
 export type TUIMessageMeta = {
     read: boolean,
@@ -23,16 +24,21 @@ type TYPE = "SOCKET_MESSAGE_DIRECT" | "SOCKET_MESSAGE_NOTIFICATION" | "SOCKET_ME
 export type TMessageDirect = TUIMessageMeta & {
     recipient: string,
     message: string,
+    message_signature: string,
     sender: string,
     message_self_encrypted: string,
+    message_self_encrypted_signature: string,
     message_decrypted?: string
     message_verified?: boolean
 }
 
-export type TMessageDTO = Omit<TMessageDirect, "read" | "message" | "message_self_encrypted" | "message_decrypted"> & {
+export type TMessageDTO = Omit<TMessageDirect, "read" | "message" | "message_self_encrypted" | "message_decrypted" | "message_signature" | "message_self_encrypted_signature"> & {
     sender: string,
     content: string
     content_self_encrypted: string,
+    content_signature: string
+    content_self_encrypted_signature: string,
+
     TYPE: TYPE
 }
 
@@ -47,7 +53,6 @@ export enum EEvent {
     OFFLINE = "OFFLINE",
     ONLINE = "ONLINE",
 }
-
 
 export type TMessageStatusChange = {
     status: EEvent,
@@ -70,7 +75,32 @@ export type TMessageNotification = {
 
 }
 
-const decryptMessages = (messages: TMessageDirect[], private_key: string, recipient_public_key: string): TMessageDirect[] | null => {
+const verifyMessagesSignature = (messages: TMessageDirect[], recipient_public_key: string, self_public_key?: string): TMessageDirect[] | null => {
+    try {
+        if (!self_public_key) return messages
+
+        const selfRSAPublic = new JSEncryptRSAKey(fromBase64(self_public_key))
+        const recipientRSAPublic = new JSEncryptRSAKey(fromBase64(recipient_public_key))
+        return messages.map(m => {
+            const self_send = m.sender === AuthService.Instance.decodedToken?.sub
+
+            if (self_send) {
+                m.message_verified = selfRSAPublic.verify(m.message_self_encrypted, m.message_self_encrypted_signature, sha256)
+            } else {
+                m.message_verified = recipientRSAPublic.verify(m.message, m.message_signature, sha256)
+            }
+            return m
+        })
+    } catch (err) {
+        showErrorNotification({
+            message: "Could not validate messages signatures.",
+            title: "Signature validation error"
+        })
+        return null
+    }
+}
+
+const decryptMessages = (messages: TMessageDirect[], private_key: string): TMessageDirect[] | null => {
     try {
         const selfRSA = new JSEncryptRSAKey(private_key)
         return messages.map(m => {
@@ -78,10 +108,10 @@ const decryptMessages = (messages: TMessageDirect[], private_key: string, recipi
 
             if (self_send) {
                 m.message_decrypted = selfRSA.decrypt(m.message_self_encrypted)
+                console.log("self send", m)
             } else {
                 m.message_decrypted = selfRSA.decrypt(m.message)
             }
-
             return m
         })
     } catch (err) {
@@ -101,21 +131,12 @@ export const Chat = () => {
     const [privateKey, setPrivateKey] = useState<string | null>(null)
     const privateKeyRef = useRef(privateKey)
     const chatContainer = useRef<HTMLDivElement>(null)
+    const { token } = useAuth()
     const handleMessageReceive = useCallback((message: TMessageDirect) => {
-        _setMessages(messages => {
-            const adjusted = [
-                ...messages,
-                { ...message, read: false }
-            ]
-
-            const recipient = users?.find(u => u.username === activeChat)
-            if (!recipient) return adjusted
-
-            if (!privateKeyRef.current) return adjusted
-
-            const decrypted = decryptMessages(adjusted, privateKeyRef.current, recipient.public_key)
-            return decrypted || adjusted
-        })
+        setMessages([
+            ...messages,
+            { ...message, read: false }
+        ])
     }, [messages])
 
     useEffect(() => {
@@ -145,17 +166,35 @@ export const Chat = () => {
     }, [messages])
 
     const setMessages = (messages: TMessageDirect[]) => {
-        if (!privateKey) {
-            _setMessages(messages)
-            return
-        }
+
         const recipient = users?.find(u => u.username === activeChat)
+
         if (!recipient) return
 
-        const decrypted = decryptMessages(messages, privateKey, recipient.public_key)
-        if (!decrypted) return
-        _setMessages(decrypted)
+
+        const verifiedMessages = verifyMessagesSignature(messages, recipient.public_key, token?.public_key)
+        if (!verifiedMessages) {
+            console.log("awdawd");
+
+            _setMessages(messages)
+            return console.error("Could not verify signatures")
+        }
+
+        if (!privateKey) {
+            _setMessages(verifiedMessages)
+            return
+        }
+        const decryptedMessages = decryptMessages(verifiedMessages, privateKey)
+
+        if (!decryptedMessages) {
+            _setMessages(verifiedMessages)
+            return console.error("Could not decrypt messages")
+        }
+
+
+        _setMessages(messages)
     }
+
     useEffect(() => {
         if (!activeChat) return
         fetchRequest(buildApiUrl("/messages?origin=" + activeChat), {
@@ -166,7 +205,9 @@ export const Chat = () => {
                 read: true,
                 recipient: m.recipient,
                 sender: m.sender,
-                message_self_encrypted: m.content_self_encrypted
+                message_self_encrypted: m.content_self_encrypted,
+                message_self_encrypted_signature: m.content_self_encrypted_signature,
+                message_signature: m.content_signature,
             }))
             setMessages(b)
         })
@@ -271,32 +312,40 @@ export const Chat = () => {
         return () => connection.current?.close()
     }, [auth.isLoggedIn])
 
-    const handleClick = () => {
+    const handleMessageSend = () => {
         if (!inputRef.current?.value) return
         const recipient = users?.find(u => u.username === activeChat)
         if (!recipient) return
+        if (!privateKey) return showErrorNotification({
+            title: "Insert private RSA Key",
+            message: "Please insert your RSA Private key to send messages"
+        })
         const public_key_encoded = recipient.public_key
         const public_key_decoded = fromBase64(public_key_encoded)
         const message = inputRef.current.value
         const recipientRSA = new JSEncryptRSAKey(public_key_decoded)
         const selfRSA = new JSEncryptRSAKey(fromBase64(AuthService.Instance.decodedToken!.public_key))
+        const selfRSAPrivate = new JSEncryptRSAKey(privateKey)
         const encrypted_message = recipientRSA.encrypt(message)
         const message_self_encrypted = selfRSA.encrypt(message)
-        const preparedText = JSON.stringify({ recipient: activeChat, message: encrypted_message, message_self_encrypted })
+
+        const encrypted_message_signature = selfRSAPrivate.sign(encrypted_message, sha256, "sha256")
+        const self_encrypted_message_signature = selfRSAPrivate.sign(message_self_encrypted, sha256, "sha256")
+
+        const preparedText = JSON.stringify({
+            recipient: activeChat,
+            message: encrypted_message,
+            message_self_encrypted: message_self_encrypted,
+            message_signature: encrypted_message_signature,
+            message_self_encrypted_signature: self_encrypted_message_signature
+        })
         inputRef.current?.value && connection.current?.send(preparedText)
         inputRef.current.value = ""
     }
 
+
     const handleChatChange = (userId: string) => {
         setActiveChat(userId)
-
-        const readMessages = messages.reduce<TMessageDirect[]>((acc, curr) => {
-            if (curr.sender !== activeChat) return [...acc, curr]
-
-            return [...acc, { ...curr, read: true }]
-        }, [])
-
-        setMessages(readMessages)
     }
 
 
@@ -316,8 +365,12 @@ export const Chat = () => {
         const recipient = users?.find(u => u.username === activeChat)
         if (!recipient) return
 
-        const decryptedMessages = decryptMessages(messages, private_key, recipient.public_key)
-        if (!decryptedMessages) return
+        const verifiedMessages = verifyMessagesSignature(messages, recipient.public_key, token?.public_key)
+        if (!verifiedMessages) return console.error("Could not verify signatures")
+
+        const decryptedMessages = decryptMessages(verifiedMessages, private_key)
+
+        if (!decryptedMessages) return console.error("Could not decrypt messages")
         setMessages(decryptedMessages)
     }
 
@@ -344,14 +397,14 @@ export const Chat = () => {
                     {messagesForChat.map((message, i) =>
                         <div className={classes["message-row"]}>
                             <span
-                                className={`${classes.message} ${(message.sender === auth.token?.sub) ? classes.sender : classes.receiver}`}
+                                className={`${classes.message} ${(message.sender === auth.token?.sub) ? classes.sender : classes.receiver} ${message.message_verified ? classes.verified : classes["verification-failed"]}`}
                                 key={i}>
                                 {message.message_decrypted || "Encrypted"}
                             </span>
                         </div>
                     )}
                 </div>
-                <TextInput className={classes.input} ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleClick()} />
+                <TextInput className={classes.input} ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleMessageSend()} />
             </section>
             <div className={classes.textarea}>
                 <FileInput accept={".pem"} label={"Select RSA private key (.pem)"} onChange={handleFileInput} />

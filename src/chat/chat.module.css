@@ -58,6 +58,7 @@
     box-shadow: 2px 2px 12px 1px #656565;
 }
 
+
 .message-row {
     display: grid;
     width: 100%;
@@ -67,10 +68,29 @@
 .message {
     padding: 0.2em 0.4em;
     border-radius: 10px;
+    position: relative;
     color: white;
     height: fit-content;
     word-break: break-all;
     box-shadow: 1px 1px 4px 0px #656565;
+}
+
+
+.message.verification-failed::after {
+    content: "❌";
+    font-size: 8pt;
+    position: absolute;
+    top: -6px;
+    right: -7px;
+}
+
+.message.verified::after {
+    content: "✓";
+    font-size: 15pt;
+    color: green;
+    position: absolute;
+    top: -15px;
+    right: -9px;
 }
 
 .receiver {
@@ -108,10 +128,10 @@
     grid-area: textarea;
 }
 
-.friendrequest > button {
+.friendrequest>button {
     margin-right: 0.5em;
 }
 
-.friendrequest > button:last-child {
+.friendrequest>button:last-child {
     margin-right: 0
 }
