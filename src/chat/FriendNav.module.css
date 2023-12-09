@@ -1,0 +1,7 @@
+.friendrequest>button {
+    margin-right: 0.5em;
+}
+
+.friendrequest>button:last-child {
+    margin-right: 0
+}

@@ -8,10 +8,11 @@ import '@mantine/notifications/styles.css';
 import { Notifications } from "@mantine/notifications";
 import { Register } from "./Auth/Register.tsx";
 import { useEffect } from "react";
+import { WebSocketContextProvider } from "./chat/websocket.tsx";
 const routes = createBrowserRouter([
     {
         path: "/",
-        element: <Chat />,
+        element: <WebSocketContextProvider><Chat /></WebSocketContextProvider>,
     },
     {
         path: "/login",
