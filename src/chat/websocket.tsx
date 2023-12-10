@@ -1,4 +1,4 @@
-import { FC, MutableRefObject, PropsWithChildren, RefObject, createContext, createRef, useContext, useEffect, useRef, useState } from "react";
+import { FC, MutableRefObject, PropsWithChildren, createContext, createRef, useContext, useEffect, useRef, useState } from "react";
 import { TMessage, TMessageDirect, TMessageFriendRequest, TMessageInitialOnlineUsers, TMessageNotification, TMessageStatusChange } from "../types/messages";
 import { useAuth } from "../auth/useAuth";
 import { AuthService } from "../auth/AuthService";

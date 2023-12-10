@@ -9,7 +9,7 @@ const render = () => ReactDOM.createRoot(document.getElementById('root')!).rende
   </AuthContextProvider>
 )
 
-AuthService.Instance.refreshToken().catch(err => {
+AuthService.Instance.refreshToken().catch(() => {
   sessionStorage.removeItem("token")
   location.href = "/login"
 }).then(render)

@@ -1,5 +1,5 @@
 import { Layout } from "../layout"
-import { RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AuthService } from "../auth/AuthService";
 import classes from "./chat.module.css"
 import { EHTTPMethod, fetchRequest } from "../utils/fetch";
