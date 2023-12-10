@@ -1,6 +1,6 @@
-import { FC, PropsWithChildren, useEffect } from "react"
+import { FC, PropsWithChildren } from "react"
 import classes from "./index.module.css"
-import { useAuth } from "../auth/useAuth"
+import { useAuth } from "../Auth/useAuth"
 import { Link } from "react-router-dom"
 import { Button } from "@mantine/core";
 type TLayoutProps = PropsWithChildren<{
@@ -10,14 +10,7 @@ type TLayoutProps = PropsWithChildren<{
 
 export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
     const auth = useAuth()
-    useEffect(() => {
-        console.log("LAYOUT MOUNT")
-    }, [])
 
-
-    useEffect(() => {
-        console.log("ALYOUT RENDER")
-    })
     return <div className={`${classes.container} ${className}`}>
         <div className={classes.header}>
             <h2>

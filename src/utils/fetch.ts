@@ -1,4 +1,4 @@
-import { AuthService } from "../auth/AuthService"
+import { AuthService } from "../Auth/AuthService.ts"
 import { useCallback, useEffect, useState } from "react";
 import { showErrorNotification } from "../misc/Notifications/Notifications.ts";
 export enum EHTTPMethod {
@@ -54,7 +54,6 @@ export async function fetchRequest<RequestBody = object, ResponseBody = object, 
         }
     }
 
-
     if (!response?.ok && response?.status !== 400) {
         showErrorNotification({
             message: `Could not fetch ${url}: ${response?.statusText}`,
@@ -63,6 +62,7 @@ export async function fetchRequest<RequestBody = object, ResponseBody = object, 
 
         return {
             body: {} as ResponseBody,
+            response: response,
             error: {
                 message: "Failed fetching"
             },

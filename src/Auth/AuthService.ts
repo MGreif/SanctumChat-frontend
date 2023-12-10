@@ -1,5 +1,5 @@
 import { jwtDecode } from "jwt-decode"
-import { EHTTPMethod, fetchRequest } from "../utils/fetch"
+import { EHTTPMethod, fetchRequest } from "../utils/fetch.ts"
 import { buildApiUrl } from "../constants.ts";
 
 export type TToken = {
@@ -32,7 +32,6 @@ export class AuthService {
         this.isLoggedIn = !!token
 
         if (!token) return
-        console.log(token)
         if (typeof token !== "string") return
         sessionStorage.setItem("token", token)
         this._decodedToken = jwtDecode(token) as TToken
@@ -51,11 +50,11 @@ export class AuthService {
         })
         const token = body.token
 
-        if (token && response.ok) {
+        if (token && response?.ok) {
             this.token = token
         }
-
-        if (!response.ok && response.status === 401) {
+        console.log(response?.ok, response?.status)
+        if (!response?.ok && response?.status === 401) {
             return Promise.reject()
         }
     }

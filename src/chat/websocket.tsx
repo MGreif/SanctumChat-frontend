@@ -1,7 +1,7 @@
 import { FC, MutableRefObject, PropsWithChildren, createContext, createRef, useContext, useEffect, useRef, useState } from "react";
 import { TMessage, TMessageDirect, TMessageFriendRequest, TMessageInitialOnlineUsers, TMessageNotification, TMessageStatusChange } from "../types/messages";
-import { useAuth } from "../auth/useAuth";
-import { AuthService } from "../auth/AuthService";
+import { useAuth } from "../Auth/useAuth";
+import { AuthService } from "../Auth/AuthService";
 import { USE_SSL, buildApiUrl } from "../constants";
 
 export class MessageEventSubscriber {
@@ -40,7 +40,6 @@ export class MessageEventSubscriber {
     }
 
     public setDirectMessageReceive (handler: (message: TMessageDirect) => void) {
-        console.log("chaneg direct message", handler, this.id)
         this.onDirectMessageReceive = handler
         return this
     }
@@ -50,7 +49,6 @@ export class MessageEventSubscriber {
     }
 
     public dispatch (message: TMessage) {
-        console.log(this.id, "received", message)
         this.onMessageReceive(message)
         switch (message.TYPE) {
             case "SOCKET_MESSAGE_DIRECT":
@@ -85,7 +83,7 @@ export class MessageEventPublisher {
 
     public subscribe (subscriber: MessageEventSubscriber) {
         if (this.subscribers.find(s => s.id === subscriber.id)) {
-            console.warn("You cannot subscribe more than once", subscriber.id)
+            console.warn("You cannot subscribe more than once. Check React render to find unnecessary rerenders", subscriber.id)
             this.subscribers = this.subscribers.filter(s => s.id !== subscriber.id)
         };
 
@@ -95,8 +93,6 @@ export class MessageEventPublisher {
 
     public publish (message: TMessage) {
         for (let sub of this.subscribers) {
-            console.log("publshed", message, sub.id);
-
             sub.dispatch(message)
         }
     }
@@ -143,11 +139,11 @@ export const WebSocketContextProvider: FC<PropsWithChildren> = ({ children }) =>
         const socket = new WebSocket(buildApiUrl(`/ws?token=${AuthService.Instance.token}`, USE_SSL ? "wss://" : "ws://"))
         // Connection opened
         socket.addEventListener("open", (event) => {
-            console.log("Connection established ...", event)
+            console.info("Connection established ...", event)
         })
 
         socket.addEventListener("error", (err) => {
-            console.log("Connection failed ...", err)
+            console.error("Connection failed ...", err)
         })
 
         // Listen for messages
@@ -155,7 +151,6 @@ export const WebSocketContextProvider: FC<PropsWithChildren> = ({ children }) =>
         socket.addEventListener("message", handleMessage)
 
         connection.current = socket
-        console.log(connection.current)
         return () => connection.current?.close()
     }, [auth.isLoggedIn])
 
@@ -167,7 +162,6 @@ export const WebSocketContextProvider: FC<PropsWithChildren> = ({ children }) =>
         try {
             let data = JSON.parse(event.data)
             meta.current.publisher.publish(data)
-            console.log("message", event.data)
         } catch (err) {
             console.error("Could not handle WebSocket message", err);
 

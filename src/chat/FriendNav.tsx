@@ -1,5 +1,5 @@
 import { FC, useEffect, useRef, useState } from "react"
-import { useAuth } from "../auth/useAuth"
+import { useAuth } from "../Auth/useAuth"
 import { buildApiUrl } from "../constants"
 import { TApiResponse } from "../types/Api"
 import { TUser, TUserRaw } from "../types/user"

@@ -1,5 +1,5 @@
 import { JSEncryptRSAKey } from "jsencrypt/lib/JSEncryptRSAKey"
-import { AuthService } from "../auth/AuthService"
+import { AuthService } from "../Auth/AuthService"
 import { showErrorNotification } from "../misc/Notifications/Notifications"
 import { fromBase64 } from "js-base64"
 import { sha256 } from "js-sha256"

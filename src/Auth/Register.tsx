@@ -1,8 +1,8 @@
-import {FormEventHandler, useState} from "react"
+import { FormEventHandler, useState } from "react"
 import { Layout } from "../layout"
-import { useAuth } from "../auth/useAuth.tsx"
+import { useAuth } from "./useAuth.tsx"
 import classes from "./index.module.css"
-import {Button, Checkbox, NumberInput, PasswordInput, Textarea, TextInput} from "@mantine/core";
+import { Button, Checkbox, NumberInput, PasswordInput, Textarea, TextInput } from "@mantine/core";
 export const Register = () => {
     const { register } = useAuth()
     const [generateKey, setChecked] = useState(false)

@@ -1,20 +1,22 @@
-import { Layout } from "../layout"
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AuthService } from "../auth/AuthService";
+import { TextInput } from "@mantine/core";
+import { JSEncryptRSAKey } from "jsencrypt/lib/JSEncryptRSAKey";
+import { fromBase64 } from "js-base64";
+import { sha256 } from "js-sha256";
+
+import { Layout } from "../layout"
+import { AuthService } from "../Auth/AuthService.ts";
 import classes from "./chat.module.css"
 import { EHTTPMethod, fetchRequest } from "../utils/fetch";
-import { useAuth } from "../auth/useAuth";
-import { FileInput, TextInput } from "@mantine/core";
+import { useAuth } from "../Auth/useAuth.tsx";
 import { buildApiUrl } from "../constants.ts";
-import { fromBase64 } from "js-base64";
-import { JSEncryptRSAKey } from "jsencrypt/lib/JSEncryptRSAKey";
 import { showErrorNotification } from "../misc/Notifications/Notifications.ts";
-import { sha256 } from "js-sha256";
 import { TMessageDTO, TMessageDirect } from "../types/messages.ts";
 import { decryptMessages, verifyMessagesSignature } from "../utils/message.ts";
 import { FriendNav } from "./FriendNav.tsx";
 import { TUser } from "../types/user.ts";
 import { MessageEventSubscriber, useWebSocketContext } from "./websocket.tsx";
+import { KeyInput } from "./KeyInput.tsx";
 
 type TUseChatWebsocketProps = {
     activeChat: TUser | null,
@@ -119,7 +121,6 @@ export const useChatWebsocket = ({
 export const Chat = () => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [privateKey, setPrivateKey] = useState<string | null>(null)
-    const privateKeyRef = useRef(privateKey)
     const chatContainer = useRef<HTMLDivElement>(null)
     const auth = useAuth()
     const [activeChat, setActiveChat] = useState<TUser | null>(null)
@@ -174,14 +175,6 @@ export const Chat = () => {
     }
 
 
-    const handleFileInput = async (file: File | null) => {
-        const fileContent = await file?.text()
-        if (!fileContent) return
-        setPrivateKey(fileContent)
-        privateKeyRef.current = fileContent
-    }
-
-
     if (!auth.isLoggedIn) {
         return <Layout title="You are not logged in, please login"></Layout>
     }
@@ -205,7 +198,7 @@ export const Chat = () => {
                 <TextInput className={classes.input} ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleMessageSend()} />
             </section>
             <div className={classes.textarea}>
-                <FileInput accept={".pem"} label={"Select RSA private key (.pem)"} onChange={handleFileInput} />
+                <KeyInput onChange={setPrivateKey} />
             </div>
         </div>
     </Layout>

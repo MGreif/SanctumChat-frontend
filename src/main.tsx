@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client'
 import { App } from './App'
-import { AuthService } from './auth/AuthService'
-import { AuthContextProvider } from './auth/useAuth'
+import { AuthService } from './Auth/AuthService'
+import { AuthContextProvider } from './Auth/useAuth'
 
 const render = () => ReactDOM.createRoot(document.getElementById('root')!).render(
   <AuthContextProvider>

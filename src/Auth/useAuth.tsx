@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren, SetStateAction, createContext, useContext, useState, useEffect } from "react";
 import { AuthService, TToken } from "./AuthService";
-import { EHTTPMethod, fetchRequest } from "../utils/fetch";
+import { EHTTPMethod, fetchRequest } from "../utils/fetch.ts";
 import { useLocation, useNavigate } from "react-router";
 import { buildApiUrl } from "../constants.ts";
 import { TApiResponse } from "../types/Api.ts";

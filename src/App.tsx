@@ -7,7 +7,6 @@ import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import { Notifications } from "@mantine/notifications";
 import { Register } from "./Auth/Register.tsx";
-import { useEffect } from "react";
 import { WebSocketContextProvider } from "./chat/websocket.tsx";
 const routes = createBrowserRouter([
     {
@@ -28,16 +27,6 @@ const routes = createBrowserRouter([
     }])
 
 export const App = () => {
-
-    useEffect(() => {
-        console.log("APP MOUNT")
-    }, [])
-
-
-    useEffect(() => {
-        console.log("APP RENDER")
-    })
-
     return <MantineProvider>
         <Notifications position={"bottom-center"} withinPortal={true} />
         <RouterProvider router={routes} />

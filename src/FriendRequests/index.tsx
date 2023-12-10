@@ -1,12 +1,12 @@
-import {FC, useRef} from "react";
-import {Layout} from "../layout";
+import { FC, useRef } from "react";
+import { Layout } from "../layout";
 import classes from "./index.module.css"
-import {Button, TextInput} from "@mantine/core";
-import {useAuth} from "../auth/useAuth.tsx";
-import {EHTTPMethod, fetchRequest, useFetchEndpoint} from "../utils/fetch.ts";
-import {buildApiUrl} from "../constants.ts";
-import {TFriendRequest} from "../types/friends.ts";
-import {showErrorNotification, showSuccessNotification} from "../misc/Notifications/Notifications.ts";
+import { Button, TextInput } from "@mantine/core";
+import { useAuth } from "../Auth/useAuth.tsx";
+import { EHTTPMethod, fetchRequest, useFetchEndpoint } from "../utils/fetch.ts";
+import { buildApiUrl } from "../constants.ts";
+import { TFriendRequest } from "../types/friends.ts";
+import { showErrorNotification, showSuccessNotification } from "../misc/Notifications/Notifications.ts";
 
 
 export const FriendRequests: FC = () => {
@@ -22,7 +22,7 @@ export const FriendRequests: FC = () => {
     })
 
     const handleClick = ({ id, accepted }: { id: string, accepted: boolean }) => {
-        fetchRequest<{ accepted: boolean }>(buildApiUrl("/friend-requests/"+id), {
+        fetchRequest<{ accepted: boolean }>(buildApiUrl("/friend-requests/" + id), {
             method: EHTTPMethod.PATCH,
             body: {
                 accepted
@@ -50,13 +50,13 @@ export const FriendRequests: FC = () => {
         const value = inputRef.current?.value
         if (!value) return
 
-        fetchRequest<{ recipient: string }, {message: string, data: null}>(buildApiUrl("/friend-requests"), {
+        fetchRequest<{ recipient: string }, { message: string, data: null }>(buildApiUrl("/friend-requests"), {
             method: EHTTPMethod.POST,
             body: {
                 recipient: value
             }
         }).then(({ response, body }) => {
-            if (!response.ok) {
+            if (!response?.ok) {
                 showErrorNotification({
                     title: "Error",
                     message: body.message
