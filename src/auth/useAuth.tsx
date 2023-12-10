@@ -1,9 +1,9 @@
-import {FC, PropsWithChildren, SetStateAction, createContext, useContext, useState, useEffect} from "react";
+import { FC, PropsWithChildren, SetStateAction, createContext, useContext, useState, useEffect } from "react";
 import { AuthService, TToken } from "./AuthService";
 import { EHTTPMethod, fetchRequest } from "../utils/fetch";
-import {useLocation, useNavigate} from "react-router";
-import {buildApiUrl} from "../constants.ts";
-import {TApiResponse} from "../types/Api.ts";
+import { useLocation, useNavigate } from "react-router";
+import { buildApiUrl } from "../constants.ts";
+import { TApiResponse } from "../types/Api.ts";
 
 export type TAuth = {
     token: TToken | null,
@@ -40,7 +40,7 @@ export const useAuth = () => {
     const navigate = useNavigate()
     const location = useLocation()
     useEffect(() => {
-        if (!context.auth.isLoggedIn && (location.pathname !== "/login") && location.pathname !== "/register" ) {
+        if (!context.auth.isLoggedIn && (location.pathname !== "/login") && location.pathname !== "/register") {
             navigate("/login")
         }
     }, [])
@@ -89,7 +89,7 @@ export const useAuth = () => {
             method: EHTTPMethod.POST,
         })
 
-        if (!response.response.ok) return
+        if (!response?.response?.ok) return
         setLoggedIn(false)
         sessionStorage.removeItem("token")
         AuthService.Instance.isLoggedIn = false
