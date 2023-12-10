@@ -1,7 +1,6 @@
 import { AuthService } from "../auth/AuthService"
 import { useCallback, useEffect, useState } from "react";
 import { showErrorNotification } from "../misc/Notifications/Notifications.ts";
-import { TApiResponse } from "../types/Api.ts";
 export enum EHTTPMethod {
     GET = "GET",
     POST = "POST",
