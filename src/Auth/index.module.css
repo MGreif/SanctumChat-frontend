@@ -18,5 +18,10 @@
 
 .formcontainer .actions {
     display: flex;
+    margin-top: 1em;
     justify-content: space-evenly;
+}
+
+.marginTop {
+    margin-top: 1em;
 }

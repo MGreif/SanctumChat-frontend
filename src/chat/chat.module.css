@@ -1,7 +1,7 @@
 .grid {
     display: grid;
-    grid-template-areas: "chatlist content" "textarea textarea";
-    grid-template-rows: 1fr 0.2fr;
+    grid-template-areas: "chatlist content";
+    grid-template-rows: 1fr;
     grid-template-columns: 200px 1fr;
     gap: 1em;
     height: 100%;
@@ -10,29 +10,33 @@
 .grid>nav {
     grid-area: chatlist;
     border: 1px solid gray;
-    padding: 1em;
+    padding: 0.5em;
+    border-bottom: none;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    border-radius: 5px;
 }
 
 .grid>nav>span.user-nav-item {
     padding: 0.5em;
     border-radius: 2px;
+    border-radius: 10px;
+    margin-bottom: 0.5em;
     display: flex;
+    background-color: #eeeeee;
     justify-content: flex-start;
     width: 100%;
     align-items: center;
     gap: 1em;
 }
 
-.active {
-    background-color: #d4d4d4;
+.grid>nav>span.user-nav-item.active {
+    background-color: #d8d8d8;
 }
 
+
 .grid>nav>span.user-nav-item:hover {
-    background-color: #e3e2e2;
+    background-color: #b4b4b4;
     cursor: pointer;
 }
 
@@ -45,17 +49,16 @@
     flex-direction: column;
     justify-content: flex-end;
     gap: 1em;
-    height: 73vh;
+    height: calc(95vh - 60px);
+    margin-right: 1em;
 }
 
 .message-container {
     gap: 0.3em;
-    border: 1px solid black;
+    border: 1px solid gray;
     height: 100%;
-    border-radius: 5px;
     padding: 1em;
     overflow-y: auto;
-    box-shadow: 2px 2px 12px 1px #656565;
 }
 
 
@@ -68,13 +71,17 @@
 .message {
     padding: 0.2em 0.4em;
     border-radius: 10px;
+    max-width: 70%;
     position: relative;
     color: white;
     height: fit-content;
     word-break: break-all;
-    box-shadow: 1px 1px 4px 0px #656565;
 }
 
+
+.message.verification-failed {
+    background-color: rgb(187, 0, 0);
+}
 
 .message.verification-failed::after {
     content: "❌";
@@ -84,6 +91,7 @@
     right: -7px;
 }
 
+/*
 .message.verified::after {
     content: "✓";
     font-size: 15pt;
@@ -92,7 +100,7 @@
     top: -15px;
     right: -9px;
 }
-
+*/
 .receiver {
     justify-self: flex-start;
     width: fit-content;

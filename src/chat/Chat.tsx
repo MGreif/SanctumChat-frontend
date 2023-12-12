@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { TextInput } from "@mantine/core";
+import { TextInput, Tooltip } from "@mantine/core";
 import { JSEncryptRSAKey } from "jsencrypt/lib/JSEncryptRSAKey";
 import { fromBase64 } from "js-base64";
 import { sha256 } from "js-sha256";
@@ -17,6 +17,7 @@ import { FriendNav } from "./FriendNav.tsx";
 import { TUser } from "../types/user.ts";
 import { MessageEventSubscriber, useWebSocketContext } from "./websocket.tsx";
 import { KeyInput } from "./KeyInput.tsx";
+import { ActiveChat } from "../persistence/ActiveChat.ts";
 
 type TUseChatWebsocketProps = {
     activeChat: TUser | null,
@@ -171,6 +172,7 @@ export const Chat = () => {
 
 
     const handleChatChange = (user: TUser) => {
+        ActiveChat.setValue(user.username)
         setActiveChat(user)
     }
 
@@ -187,19 +189,22 @@ export const Chat = () => {
                 <div className={classes["message-container"]} ref={chatContainer}>
                     {messagesForChat.map((message, i) =>
                         <div className={classes["message-row"]}>
-                            <span
-                                className={`${classes.message} ${(message.sender === auth.token?.sub) ? classes.sender : classes.receiver} ${message.message_verified ? classes.verified : classes["verification-failed"]}`}
-                                key={i}>
-                                {message.message_decrypted || "Encrypted"}
-                            </span>
+                            <Tooltip style={{ width: "300px" }} multiline label={message.message_verified ? "" : "Message signature could not be verified! This message might have been altered or intercepted!"} disabled={message.message_verified}>
+                                <span
+                                    className={`${classes.message} ${(message.sender === auth.token?.sub) ? classes.sender : classes.receiver} ${message.message_verified ? classes.verified : classes["verification-failed"]}`}
+                                    key={i}>
+                                    {message.message_decrypted || "Encrypted"}
+                                </span>
+                            </Tooltip>
                         </div>
                     )}
                 </div>
-                <TextInput className={classes.input} ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleMessageSend()} />
+                <TextInput placeholder="Hola" className={classes.input} ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleMessageSend()} />
+                <div className={classes.textarea}>
+                    <KeyInput onChange={setPrivateKey} />
+                </div>
             </section>
-            <div className={classes.textarea}>
-                <KeyInput onChange={setPrivateKey} />
-            </div>
+
         </div>
     </Layout>
 }
