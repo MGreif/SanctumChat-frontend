@@ -29,6 +29,23 @@ export const FriendNav: FC<TFriendNavProps> = ({
             method: EHTTPMethod.GET,
         }
     }, { skip: !auth.isLoggedIn })
+
+    const { data: activeUsers, refetch: refetchOnlineUsers } = useFetchEndpoint<object, TApiResponse<string[]>>({
+        url: buildApiUrl("/friends/active"),
+        fetchOptions: {
+            method: EHTTPMethod.GET,
+        }
+    }, { skip: !auth.isLoggedIn })
+
+    const onFriendRequestApply = () => {
+        refetch()
+        refetchOnlineUsers()
+    }
+
+    useEffect(() => {
+        if (!activeUsers?.data) return
+        setOnlineUsers(activeUsers.data)
+    }, [activeUsers])
     const websocket = useWebSocketContext()
     const [onlineUsers, setOnlineUsers] = useState<string[]>([])
 
@@ -60,7 +77,7 @@ export const FriendNav: FC<TFriendNavProps> = ({
     }, [users])
 
     return <nav>
-        <FriendRequestNotification refetchFriends={refetch} />
+        <FriendRequestNotification refetchFriends={onFriendRequestApply} />
         {users?.filter(u => u.username !== auth.token?.sub).map(u =>
             <UserNavItem
                 key={u.username}

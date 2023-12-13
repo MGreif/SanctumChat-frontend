@@ -18,6 +18,7 @@ import { TUser } from "../types/user.ts";
 import { MessageEventSubscriber, useWebSocketContext } from "./websocket.tsx";
 import { KeyInput } from "./KeyInput.tsx";
 import { ActiveChat } from "../persistence/ActiveChat.ts";
+import { TApiResponse } from "../types/Api.ts";
 
 type TUseChatWebsocketProps = {
     activeChat: TUser | null,
@@ -81,21 +82,7 @@ export const useChatWebsocket = ({
     }
 
     useEffect(() => {
-        if (!activeChat) return
-        fetchRequest(buildApiUrl("/messages?origin=" + activeChat.username), {
-            method: EHTTPMethod.GET,
-        }).then(({ body }) => {
-            const b: TMessageDirect[] = (body as TMessageDTO[]).map(m => ({
-                message: m.content,
-                read: true,
-                recipient: m.recipient,
-                sender: m.sender,
-                message_self_encrypted: m.content_self_encrypted,
-                message_self_encrypted_signature: m.content_self_encrypted_signature,
-                message_signature: m.content_signature,
-            }))
-            setMessages(b)
-        })
+        loadMessages(0)
     }, [activeChat])
 
     const handleMessageReceive = useCallback((message: TMessageDirect) => {
@@ -115,7 +102,26 @@ export const useChatWebsocket = ({
         websocket.meta?.current.publisher.subscribe(subscriber.current)
     }, [])
 
-    return { messages }
+    const loadMessages = (skip = 0) => {
+        if (!activeChat) return
+        fetchRequest<object, TApiResponse<TMessageDTO[]>>(buildApiUrl(`/messages?origin=${activeChat.username}&skip=${skip}`), {
+            method: EHTTPMethod.GET,
+        }).then(({ body }) => {
+            if (!body.data?.length) return
+            const b: TMessageDirect[] = body.data.map(m => ({
+                message: m.content,
+                read: true,
+                recipient: m.recipient,
+                sender: m.sender,
+                message_self_encrypted: m.content_self_encrypted,
+                message_self_encrypted_signature: m.content_self_encrypted_signature,
+                message_signature: m.content_signature,
+            }))
+            setMessages([...b, ...messages])
+        })
+    }
+
+    return { messages, loadMessages }
 }
 
 
@@ -126,7 +132,7 @@ export const Chat = () => {
     const auth = useAuth()
     const [activeChat, setActiveChat] = useState<TUser | null>(null)
     const websocket = useWebSocketContext()
-    const { messages } = useChatWebsocket({
+    const { messages, loadMessages } = useChatWebsocket({
         activeChat,
         privateKey
     })
@@ -159,7 +165,7 @@ export const Chat = () => {
         const self_encrypted_message_signature = selfRSAPrivate.sign(message_self_encrypted, sha256, "sha256")
 
         const preparedText = JSON.stringify({
-            recipient: activeChat.username,
+            recipient: recipient.username,
             message: encrypted_message,
             message_self_encrypted: message_self_encrypted,
             message_signature: encrypted_message_signature,
@@ -187,6 +193,7 @@ export const Chat = () => {
             <FriendNav activeChat={activeChat} messages={messages} onChatChange={handleChatChange} />
             <section className={classes.chat}>
                 <div className={classes["message-container"]} ref={chatContainer}>
+                    <span onClick={() => loadMessages(messages.length)}>Load more</span>
                     {messagesForChat.map((message, i) =>
                         <div className={classes["message-row"]}>
                             <Tooltip style={{ width: "300px" }} multiline label={message.message_verified ? "" : "Message signature could not be verified! This message might have been altered or intercepted!"} disabled={message.message_verified}>
