@@ -8,6 +8,7 @@ import { UserNavItem } from "./UserNavItem"
 import { EEvent, TMessageDirect, TMessageInitialOnlineUsers } from "../types/messages"
 import { MessageEventSubscriber, useWebSocketContext } from "./websocket"
 import { FriendRequestNotification } from "./FriendRequestNotification"
+import { ActiveChat } from "../persistence/ActiveChat"
 
 type TFriendNavProps = {
     activeChat: TUser | null,
@@ -47,6 +48,16 @@ export const FriendNav: FC<TFriendNavProps> = ({
     useEffect(() => {
         websocket.meta?.current.publisher.subscribe(subscriber.current)
     }, [])
+
+    useEffect(() => {
+        if (!users) return
+        const savedUserName = ActiveChat.getValue()
+        if (!savedUserName) return
+        const foundUser = users.find(u => u.username === savedUserName)
+        if (!foundUser) return
+
+        onChatChange(foundUser)
+    }, [users])
 
     return <nav>
         <FriendRequestNotification refetchFriends={refetch} />
