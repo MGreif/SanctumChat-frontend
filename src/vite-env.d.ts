@@ -4,3 +4,5 @@ interface ImportMetaEnv {
     readonly VITE_USE_SSL: string
     // more env variables...
 }
+
+declare const APP_VERSION: string;

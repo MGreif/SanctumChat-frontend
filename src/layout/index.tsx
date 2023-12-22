@@ -2,7 +2,9 @@ import { FC, PropsWithChildren, useState } from "react"
 import classes from "./index.module.css"
 import { useAuth } from "../Auth/useAuth"
 import { Link } from "react-router-dom"
-import { Button, Switch } from "@mantine/core";
+import { Button } from "@mantine/core";
+import { Footer } from "./Footer";
+
 type TLayoutProps = PropsWithChildren<{
     title: string,
     className?: string
@@ -10,7 +12,7 @@ type TLayoutProps = PropsWithChildren<{
 
 export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
     const auth = useAuth()
-    const [mode, setMode] = useState<"dark" | "light">("light")
+    const [mode, _] = useState<"dark" | "light">("light")
     return <div className={`${classes.container} ${mode === "light" ? classes.lightmode : classes.darkmode} ${className}`}>
         <div className={classes.header}>
             <h2>
@@ -34,5 +36,6 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
         <div className={classes.content}>
             {children}
         </div>
+        <Footer />
     </div>
 }
