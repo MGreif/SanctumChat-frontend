@@ -68,6 +68,11 @@ export const useAuth = () => {
             method: EHTTPMethod.POST,
             body: { username, password, name, age, public_key, generate_key: generateKey },
         })
+
+        if (result.error) {
+            return
+        }
+
         if (generateKey) {
             const link = document.createElement('a');
             const decoded = String.fromCharCode(...result.body.data)

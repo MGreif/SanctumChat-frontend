@@ -18,11 +18,45 @@ export type TfetchOptions<RequestBody, ResponseBody, ResponseBodyAfterTransform>
 
 }
 
+export type TError = {
+    message?: string
+}
+
 export type TfetchReturn<Body = object> = {
     response?: Response,
     body: Body,
-    error?: { message?: string }
+    error?: TError
 }
+
+function handleParsingFailed<R> (): TfetchReturn<R> {
+    showErrorNotification({
+        title: "Fetching failed",
+        message: "Could not parse response body"
+    })
+
+    return {
+        body: {} as R,
+        error: {
+            message: "Could not parse response body"
+        },
+    }
+}
+
+function handleFetchingFailed<R> (err: string): TfetchReturn<R> {
+    showErrorNotification({
+        title: "Fetching failed",
+        message: err
+    })
+
+    return {
+        body: {} as R,
+        error: {
+            message: err
+        },
+    }
+}
+
+
 
 export async function fetchRequest<RequestBody = object, ResponseBody = object, ResponseBodyAfterTransform = object> (url: string, {
     method,
@@ -42,16 +76,7 @@ export async function fetchRequest<RequestBody = object, ResponseBody = object, 
             ]
         })
     } catch (err) {
-        showErrorNotification({
-            message: err?.toString(),
-            title: "Failed fetching"
-        })
-        return {
-            body: {} as ResponseBody,
-            error: {
-                message: err?.toString()
-            },
-        }
+        return handleFetchingFailed(err?.toString?.() || "Fetching failed")
     }
 
     if (!response?.ok && response?.status !== 400) {
@@ -67,13 +92,37 @@ export async function fetchRequest<RequestBody = object, ResponseBody = object, 
                 message: "Failed fetching"
             },
         }
+    } else if (!response.ok) {
+
+        let json: TError = {} as TError
+
+        try {
+            json = await response?.json() as TError
+        } catch (err) {
+            return handleParsingFailed()
+        }
+
+
+        showErrorNotification({
+            message: json.message,
+            title: "Failed fetching"
+        })
+
+
+        return {
+            body: {} as ResponseBody,
+            response: response,
+            error: json
+        }
     }
 
     let json: ResponseBody = {} as ResponseBody
 
     try {
         json = await response?.json() as ResponseBody
-    } catch (err) { }
+    } catch (err) {
+        return handleParsingFailed()
+    }
 
     return {
         body: json,

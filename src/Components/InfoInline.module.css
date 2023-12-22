@@ -1,0 +1,12 @@
+.info-icon {
+    margin-left: 0.2em;
+}
+
+.tooltip {
+    width: 300px;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+}

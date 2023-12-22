@@ -11,7 +11,7 @@ import { WebSocketContextProvider } from "./chat/websocket.tsx";
 const routes = createBrowserRouter([
     {
         path: "/",
-        element: <WebSocketContextProvider><Chat /></WebSocketContextProvider>,
+        element: <Chat />,
     },
     {
         path: "/login",
@@ -28,7 +28,9 @@ const routes = createBrowserRouter([
 
 export const App = () => {
     return <MantineProvider>
-        <Notifications position={"bottom-center"} withinPortal={true} />
-        <RouterProvider router={routes} />
+        <WebSocketContextProvider>
+            <Notifications position={"bottom-center"} withinPortal={true} />
+            <RouterProvider router={routes} />
+        </WebSocketContextProvider>
     </MantineProvider>
 }

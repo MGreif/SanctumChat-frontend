@@ -1,6 +1,5 @@
 import { FC, MutableRefObject, PropsWithChildren, createContext, createRef, useContext, useEffect, useRef, useState } from "react";
 import { TMessage, TMessageDirect, TMessageFriendRequest, TMessageInitialOnlineUsers, TMessageNotification, TMessageStatusChange } from "../types/messages";
-import { useAuth } from "../Auth/useAuth";
 import { AuthService } from "../Auth/AuthService";
 import { USE_SSL, buildApiUrl } from "../constants";
 
@@ -124,12 +123,11 @@ export const WebSocketContextProvider: FC<PropsWithChildren> = ({ children }) =>
     const meta = useRef({
         publisher: new MessageEventPublisher()
     })
-    const auth = useAuth()
 
 
     useEffect(() => {
 
-        if (!auth.isLoggedIn) {
+        if (!AuthService.Instance.isLoggedIn) {
             return
         }
 
@@ -152,7 +150,7 @@ export const WebSocketContextProvider: FC<PropsWithChildren> = ({ children }) =>
 
         connection.current = socket
         return () => connection.current?.close()
-    }, [auth.isLoggedIn])
+    }, [AuthService.Instance])
 
 
 

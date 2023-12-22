@@ -82,7 +82,7 @@ export const useChatWebsocket = ({
     }
 
     useEffect(() => {
-        loadMessages(0)
+        loadMessages(0, true)
     }, [activeChat])
 
     const handleMessageReceive = useCallback((message: TMessageDirect) => {
@@ -102,7 +102,7 @@ export const useChatWebsocket = ({
         websocket.meta?.current.publisher.subscribe(subscriber.current)
     }, [])
 
-    const loadMessages = (skip = 0) => {
+    const loadMessages = (skip = 0, clearMessages = false) => {
         if (!activeChat) return
         fetchRequest<object, TApiResponse<TMessageDTO[]>>(buildApiUrl(`/messages?origin=${activeChat.username}&skip=${skip}`), {
             method: EHTTPMethod.GET,
@@ -117,7 +117,8 @@ export const useChatWebsocket = ({
                 message_self_encrypted_signature: m.content_self_encrypted_signature,
                 message_signature: m.content_signature,
             }))
-            setMessages([...b, ...messages])
+            let newMessages = clearMessages ? b : [...b, ...messages]
+            setMessages(newMessages)
         })
     }
 

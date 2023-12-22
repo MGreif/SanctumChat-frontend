@@ -7,7 +7,7 @@
     box-shadow: 2px 2px 12px 3px #656565;
 }
 
-.formcontainer label::after {
+.formcontainer label.required::after {
     content: " *";
     color: red;
 }
