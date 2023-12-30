@@ -1,16 +1,31 @@
 # binaries
 DOCKER_BIN=/usr/bin/docker
+JQ_BIN=/usr/bin/jq
 
+# script location
+PWD=`pwd`
+DIR=`dirname "$0"`
+SCRIPT_LOCATION=$PWD/$DIR
+echo $SCRIPT_LOCATION
 
 # Package metadata 
-VERSION=$(cat ../package.json | jq -r ".version")
-PACKAGE_NAME=$(cat ../package.json | jq -r ".name")
+VERSION=$(cat $SCRIPT_LOCATION/../package.json | $JQ_BIN -r ".version")
+PACKAGE_NAME=$(cat $SCRIPT_LOCATION/../package.json | $JQ_BIN -r ".name")
 
 
 #Docker metadata
 DOCKER_HUB_USERNAME=mgreif
 IMAGE_NAME=$DOCKER_HUB_USERNAME/$PACKAGE_NAME:$VERSION
 
+
+
+echo "---META---"
+echo "+ Version     : $VERSION"
+echo "+ Package Name: $PACKAGE_NAME"
+echo "+ Image Name  : $IMAGE_NAME"
+
+echo Waiting 4 seconds for meta validation
+sleep 4
 
 echo logging into docker hub;
 
@@ -22,10 +37,7 @@ then
     exit 1
 fi;
 
-
 echo Checking for invalid or existing image ...
-
-
 
 if $DOCKER_BIN image ls | awk '{split($0,a," "); print a[1]":"a[2]}' | grep -q $IMAGE_NAME;
 then
@@ -34,16 +46,19 @@ then
     exit 1
 fi;
 
-
 echo Building image
 
-$DOCKER_BIN build -t $IMAGE_NAME .
+cd $SCRIPT_LOCATION/..
+
+$DOCKER_BIN build -t $IMAGE_NAME -f $SCRIPT_LOCATION/Dockerfile $SCRIPT_LOCATION/..
 
 if [ $? -ne 0 ];
 then
     echo failed building image;
     exit 1
 fi;
+
+cd -
 
 echo Pushing $IMAGE_NAME to dockerhub;
 
@@ -56,7 +71,7 @@ then
 fi;
 
 echo Successfully pushed to docker hub
-echo Exiting ...
+echo Done ...
 
 exit 0
 
