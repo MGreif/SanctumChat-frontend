@@ -2,6 +2,8 @@
 interface ImportMetaEnv {
     readonly VITE_API_ORIGIN: string
     readonly VITE_USE_SSL: string
+    readonly VITE_USE_RELATIVE_PATH: string
+    readonly VITE_BASE_PATH: string
     // more env variables...
 }
 
