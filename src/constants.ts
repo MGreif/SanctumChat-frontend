@@ -1,4 +1,4 @@
-export const API_ORIGIN = import.meta.env.VITE_API_ORIGIN
+export const API_ORIGIN = import.meta.env.VITE_API_ORIGIN || ""
 export const USE_SSL = import.meta.env.VITE_USE_SSL === "true"
 export const USE_RELATIVE_PATH = import.meta.env.VITE_USE_RELATIVE_PATH === "true"
 export const BASE_PATH = import.meta.env.VITE_BASE_PATH || ""
