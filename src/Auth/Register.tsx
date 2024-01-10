@@ -7,7 +7,7 @@ import { toBase64 } from "js-base64";
 import { InfoInline } from "../Components/InfoInline.tsx";
 
 
-const tooltipText = "As of the current version of anonchat, generating an RSA keypair will happen on the server side. Thus eavesdropping on the communication channel could result in potential decryption and disclosure of the private key."
+const tooltipText = "As of the current version of SanctumChat, generating an RSA keypair will happen on the server side. Thus eavesdropping on the communication channel could result in potential decryption and disclosure of the private key."
 
 export const Register = () => {
     const { register } = useAuth()
