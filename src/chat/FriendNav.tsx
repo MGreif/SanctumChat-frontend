@@ -2,7 +2,7 @@ import { FC, useEffect, useRef, useState } from "react"
 import { useAuth } from "../Auth/useAuth"
 import { buildApiUrl } from "../constants"
 import { TApiResponse } from "../types/Api"
-import { TUser, TUserRaw } from "../types/user"
+import { TUser } from "../types/user"
 import { EHTTPMethod, useFetchEndpoint } from "../utils/fetch"
 import { UserNavItem } from "./UserNavItem"
 import { EEvent, TMessageDirect, TMessageInitialOnlineUsers } from "../types/messages"
@@ -22,10 +22,10 @@ export const FriendNav: FC<TFriendNavProps> = ({
     messages,
 }) => {
     const auth = useAuth()
-    const { data: users, refetch } = useFetchEndpoint<object, TApiResponse<TUserRaw[]>, TUser[]>({
+    const { data: users, refetch } = useFetchEndpoint<object, TApiResponse<TUser[]>, TUser[]>({
         url: buildApiUrl("/friends"),
         fetchOptions: {
-            transform: (response) => response?.data?.map(u => ({ ...u, public_key: String.fromCharCode(...u.public_key) })) || [],
+            transform: (r) => r?.data || [],
             method: EHTTPMethod.GET,
         }
     }, { skip: !auth.isLoggedIn })

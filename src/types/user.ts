@@ -5,7 +5,3 @@ export type TUser = {
     username: string,
     public_key: string
 }
-
-export type TUserRaw = Omit<TUser, "public_key"> & {
-    public_key: number[]
-}
