@@ -82,7 +82,7 @@ export const FriendRequests: FC = () => {
             </div>
             <div className={classes.list}>
                 {friendRequests?.map(u => <div className={classes.listitem}>
-                    <span className={classes.name}>{u.sender_name}</span>
+                    <span className={classes.name}>{u.sender_id}</span>
                     <span className={classes.buttons}>
                         <Button color={"red"} onClick={() => handleDenyClick(u.id)}>Deny</Button>
                         <Button color={"green"} onClick={() => handleAcceptClick(u.id)}>Accept</Button>

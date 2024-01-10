@@ -4,8 +4,10 @@ import { useAuth } from "./useAuth.tsx"
 import { useNavigate } from "react-router";
 import classes from "./index.module.css"
 import { Button, PasswordInput, TextInput } from "@mantine/core";
+import { useWebSocketContext } from "../chat/websocket.tsx";
 export const Login = () => {
     const { login, isLoggedIn } = useAuth()
+    const { establishConnection } = useWebSocketContext()
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -17,7 +19,7 @@ export const Login = () => {
         e.preventDefault()
         const username = e.target.username.value
         const password = e.target.password.value
-        login(username, password)
+        login(username, password).then(establishConnection)
     }
 
 

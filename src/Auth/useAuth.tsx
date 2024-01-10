@@ -63,10 +63,10 @@ export const useAuth = () => {
         navigate("/")
     }
 
-    const register = async (username: string, name: string, age: number, password: string, public_key: string, generateKey: boolean) => {
-        const result = await fetchRequest<{ username: string, password: string, age: number, name: string, public_key: string, generate_key: boolean }, TApiResponse<number[]>>(buildApiUrl("/users"), {
+    const register = async (username: string, password: string, public_key: string, generateKey: boolean) => {
+        const result = await fetchRequest<{ username: string, password: string, public_key: string, generate_key: boolean }, TApiResponse<number[]>>(buildApiUrl("/users"), {
             method: EHTTPMethod.POST,
-            body: { username, password, name, age, public_key, generate_key: generateKey },
+            body: { username, password, public_key, generate_key: generateKey },
         })
 
         if (result.error) {

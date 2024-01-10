@@ -17,6 +17,6 @@ export const UserNavItem: FC<TUserNavItemProps> = ({ onClick, user, isOnline, is
     >
         <span className={`${isOnline ? classes.online : ""} ${classes.dot}`}></span>
         <span className={`${hasUnreadItems ? classes.unread : ""} ${classes.dot}`}></span>
-        {user.name}
+        {user.username}
     </span>
 }

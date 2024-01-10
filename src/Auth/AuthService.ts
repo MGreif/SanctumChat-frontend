@@ -4,7 +4,6 @@ import { buildApiUrl } from "../constants.ts";
 
 export type TToken = {
     sub: string
-    name: string
     public_key: string
 }
 

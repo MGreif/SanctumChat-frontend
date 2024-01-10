@@ -2,7 +2,7 @@ import { FormEventHandler, useState } from "react"
 import { Layout } from "../layout"
 import { useAuth } from "./useAuth.tsx"
 import classes from "./index.module.css"
-import { Button, Checkbox, FileInput, NumberInput, PasswordInput, TextInput } from "@mantine/core";
+import { Button, Checkbox, FileInput, PasswordInput, TextInput } from "@mantine/core";
 import { toBase64 } from "js-base64";
 import { InfoInline } from "../Components/InfoInline.tsx";
 
@@ -18,11 +18,9 @@ export const Register = () => {
         console.log(publicKey)
         if (!generateKey && !publicKey) return
         const username = e.target.username.value
-        const name = e.target.name.value
-        const age = parseInt(e.target.age.value)
         const password = e.target.password.value
         const public_key = toBase64(publicKey || "")
-        register(username, name, age, password, public_key, generateKey)
+        register(username, password, public_key, generateKey)
     }
 
 
@@ -32,10 +30,6 @@ export const Register = () => {
             <form action="/register" onSubmit={handleSubmit} method="POST">
                 <label className={classes.required} htmlFor="username">Username</label> <br />
                 <TextInput required name="username" /> <br />
-                <label className={classes.required} htmlFor="name">Name</label> <br />
-                <TextInput required name="name" /> <br />
-                <label className={classes.required} htmlFor="age">Age</label> <br />
-                <NumberInput required name="age" /> <br />
                 <label className={classes.required} htmlFor="password">Password</label> <br />
                 <PasswordInput required type="password" name="password" /><br />
                 <label className={generateKey ? "" : classes.required} htmlFor="public_key">Insert own public RSA key (PKCS#8 .pem file)</label> <br />

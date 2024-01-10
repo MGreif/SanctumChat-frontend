@@ -22,7 +22,7 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
                 {auth.isLoggedIn ? <>
                     <Link to={"/"}>Chat</Link>
                     <Link to={"/friend-requests"}>Friend Requests</Link>
-                    <><span>Logged in as {auth.token?.name}</span><Button color={"red"} onClick={auth.logout}>Logout</Button></>
+                    <><span>Logged in as {auth.token?.sub}</span><Button color={"red"} onClick={auth.logout}>Logout</Button></>
                 </>
                     :
                     <>

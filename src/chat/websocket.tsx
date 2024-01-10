@@ -99,6 +99,7 @@ export class MessageEventPublisher {
 
 type TWebsocketContext = {
     messages: TMessage[]
+    establishConnection: () => void
     connection: MutableRefObject<WebSocket | null>
     meta: MutableRefObject<{
         publisher: MessageEventPublisher;
@@ -108,6 +109,7 @@ type TWebsocketContext = {
 const WebsocketContext = createContext<TWebsocketContext>({
     messages: [],
     connection: createRef(),
+    establishConnection: () => { },
     meta: null
 })
 
@@ -124,9 +126,7 @@ export const WebSocketContextProvider: FC<PropsWithChildren> = ({ children }) =>
         publisher: new MessageEventPublisher()
     })
 
-
-    useEffect(() => {
-
+    function establishConnection () {
         if (!AuthService.Instance.isLoggedIn) {
             return
         }
@@ -150,9 +150,11 @@ export const WebSocketContextProvider: FC<PropsWithChildren> = ({ children }) =>
 
         connection.current = socket
         return () => connection.current?.close()
-    }, [AuthService.Instance])
+    }
 
-
+    useEffect(() => {
+        establishConnection()
+    }, [])
 
     const handleMessage = (event: MessageEvent<any>) => {
         setMessages(messages => [...messages, event.data])
@@ -171,6 +173,7 @@ export const WebSocketContextProvider: FC<PropsWithChildren> = ({ children }) =>
     return <WebsocketContext.Provider value={{
         messages,
         connection,
+        establishConnection,
         meta
     }}>
         {children}

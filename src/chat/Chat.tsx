@@ -196,7 +196,7 @@ export const Chat = () => {
                 <div className={classes["message-container"]} ref={chatContainer}>
                     <span onClick={() => loadMessages(messages.length)}>Load more</span>
                     {messagesForChat.map((message, i) =>
-                        <div className={classes["message-row"]}>
+                        <div key={i} className={classes["message-row"]}>
                             <Tooltip style={{ width: "300px" }} multiline label={message.message_verified ? "" : "Message signature could not be verified! This message might have been altered or intercepted!"} disabled={message.message_verified}>
                                 <span
                                     className={`${classes.message} ${(message.sender === auth.token?.sub) ? classes.sender : classes.receiver} ${message.message_verified ? classes.verified : classes["verification-failed"]}`}
