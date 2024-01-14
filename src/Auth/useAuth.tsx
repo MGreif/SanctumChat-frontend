@@ -52,11 +52,11 @@ export const useAuth = () => {
     }
 
     const login = async (username: string, password: string) => {
-        const response = await fetchRequest<{ username: string, password: string }, { token: string }>(buildApiUrl("/login"), {
+        const response = await fetchRequest<{ username: string, password: string }, { data: string }>(buildApiUrl("/login"), {
             method: EHTTPMethod.POST,
             body: { username, password },
         })
-        const { token } = response.body
+        const { data: token } = response.body
         AuthService.Instance.token = token
         context.setAuth(auth => ({ ...auth, token: AuthService.Instance.decodedToken }))
         setLoggedIn(!!token)

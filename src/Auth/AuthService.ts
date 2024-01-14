@@ -1,6 +1,7 @@
 import { jwtDecode } from "jwt-decode"
 import { EHTTPMethod, fetchRequest } from "../utils/fetch.ts"
 import { buildApiUrl } from "../constants.ts";
+import { TApiResponse } from "../types/Api.ts";
 
 export type TToken = {
     sub: string
@@ -42,17 +43,19 @@ export class AuthService {
 
     public async refreshToken (): Promise<void> {
         const savedToken = sessionStorage.getItem("token")
-        if (!savedToken) return
         this.token = savedToken
-        const { body, response } = await fetchRequest<{ token: string }, { token: string }>(buildApiUrl("/token"), {
+
+        if (!savedToken) return
+        const { body, response } = await fetchRequest<string, TApiResponse<string>>(buildApiUrl("/token"), {
             method: EHTTPMethod.POST
         })
-        const token = body.token
+        const token = body.data
+        this.token = token
 
         if (token && response?.ok) {
             this.token = token
         }
-        console.log(response?.ok, response?.status)
+
         if (!response?.ok && response?.status === 401) {
             return Promise.reject()
         }

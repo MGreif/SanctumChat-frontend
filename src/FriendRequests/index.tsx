@@ -7,12 +7,13 @@ import { EHTTPMethod, fetchRequest, useFetchEndpoint } from "../utils/fetch.ts";
 import { buildApiUrl } from "../constants.ts";
 import { TFriendRequest } from "../types/friends.ts";
 import { showErrorNotification, showSuccessNotification } from "../misc/Notifications/Notifications.ts";
+import { TApiResponse } from "../types/Api.ts";
 
 
 export const FriendRequests: FC = () => {
     const auth = useAuth()
     const inputRef = useRef<HTMLInputElement>(null)
-    const { data: friendRequests, refetch } = useFetchEndpoint<void, TFriendRequest[]>({
+    const { data: friendRequests, refetch } = useFetchEndpoint<void, TApiResponse<TFriendRequest[]>>({
         url: buildApiUrl("/friend-requests"),
         fetchOptions: {
             method: EHTTPMethod.GET
@@ -81,7 +82,7 @@ export const FriendRequests: FC = () => {
                 <Button onClick={() => handleSendClick()}>Send</Button>
             </div>
             <div className={classes.list}>
-                {friendRequests?.map(u => <div className={classes.listitem}>
+                {friendRequests?.data.map(u => <div className={classes.listitem}>
                     <span className={classes.name}>{u.sender_id}</span>
                     <span className={classes.buttons}>
                         <Button color={"red"} onClick={() => handleDenyClick(u.id)}>Deny</Button>

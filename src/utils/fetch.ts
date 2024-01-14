@@ -1,6 +1,7 @@
 import { AuthService } from "../Auth/AuthService.ts"
 import { useCallback, useEffect, useState } from "react";
 import { showErrorNotification } from "../misc/Notifications/Notifications.ts";
+import { TApiResponse } from "../types/Api.ts";
 export enum EHTTPMethod {
     GET = "GET",
     POST = "POST",
@@ -80,9 +81,10 @@ export async function fetchRequest<RequestBody = object, ResponseBody = object, 
     }
 
     if (!response?.ok && response?.status !== 400) {
+        let json: TApiResponse<string> = await response.json()
         showErrorNotification({
-            message: `Could not fetch ${url}: ${response?.statusText}`,
-            title: "Failed fetching"
+            message: json.message || `Could not fetch ${url}: ${response?.statusText}`,
+            title: response?.statusText || "Failed"
         })
 
         return {
