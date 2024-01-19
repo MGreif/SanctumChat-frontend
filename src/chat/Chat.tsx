@@ -31,6 +31,7 @@ export const useChatWebsocket = ({
 }: TUseChatWebsocketProps) => {
     const websocket = useWebSocketContext()
     const [messages, _setMessages] = useState<TMessageDirect[]>([])
+    const [page, setPage] = useState(0)
     const { token } = useAuth()
 
     const setMessages = useCallback((messages: TMessageDirect[]) => {
@@ -82,7 +83,7 @@ export const useChatWebsocket = ({
     }
 
     useEffect(() => {
-        loadMessages(0, true)
+        loadMessages(0, 15, true)
     }, [activeChat])
 
     const handleMessageReceive = useCallback((message: TMessageDirect) => {
@@ -102,9 +103,9 @@ export const useChatWebsocket = ({
         websocket.meta?.current.publisher.subscribe(subscriber.current)
     }, [])
 
-    const loadMessages = (skip = 0, clearMessages = false) => {
+    const loadMessages = (index = page, size = 15, clearMessages = false) => {
         if (!activeChat) return
-        fetchRequest<object, TApiResponse<TMessageDTO[]>>(buildApiUrl(`/messages?origin=${activeChat.username}&skip=${skip}`), {
+        fetchRequest<object, TApiResponse<TMessageDTO[]>>(buildApiUrl(`/messages?origin=${activeChat.username}&index=${index}&size=${size}`), {
             method: EHTTPMethod.GET,
         }).then(({ body }) => {
             if (!body.data?.length) return
@@ -119,6 +120,7 @@ export const useChatWebsocket = ({
             }))
             let newMessages = clearMessages ? b : [...b, ...messages]
             setMessages(newMessages)
+            setPage(index + 1)
         })
     }
 
@@ -194,7 +196,7 @@ export const Chat = () => {
             <FriendNav activeChat={activeChat} messages={messages} onChatChange={handleChatChange} />
             <section className={classes.chat}>
                 <div className={classes["message-container"]} ref={chatContainer}>
-                    <span onClick={() => loadMessages(messages.length)}>Load more</span>
+                    <span onClick={() => loadMessages()}>Load more</span>
                     {messagesForChat.map((message, i) =>
                         <div key={i} className={classes["message-row"]}>
                             <Tooltip style={{ width: "300px" }} multiline label={message.message_verified ? "" : "Message signature could not be verified! This message might have been altered or intercepted!"} disabled={message.message_verified}>

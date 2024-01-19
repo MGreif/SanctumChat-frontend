@@ -1,5 +1,5 @@
 import { FC, MutableRefObject, PropsWithChildren, createContext, createRef, useContext, useEffect, useRef, useState } from "react";
-import { TMessage, TMessageDirect, TMessageFriendRequest, TMessageInitialOnlineUsers, TMessageNotification, TMessageStatusChange } from "../types/messages";
+import { TMessage, TMessageDirect, TMessageError, TMessageFriendRequest, TMessageInitialOnlineUsers, TMessageNotification, TMessageStatusChange } from "../types/messages";
 import { AuthService } from "../Auth/AuthService";
 import { USE_SSL, buildApiUrl } from "../constants";
 
@@ -9,6 +9,7 @@ export class MessageEventSubscriber {
     public onFriendRequestMessageReceive: (message: TMessageFriendRequest) => void = () => { }
     public onNotficationMessageReceive: (message: TMessageNotification) => void = () => { }
     public onFriendStatusChangeMessageReceive: (message: TMessageStatusChange) => void = () => { }
+    public onErrorMessageReceive: (message: TMessageError) => void = () => { }
     public onInitialOnlineFriendsReceive: (message: TMessageInitialOnlineUsers) => void = () => { }
     public onDirectMessageReceive: (message: TMessageDirect) => void = () => { }
 
@@ -30,6 +31,11 @@ export class MessageEventSubscriber {
 
     public setFriendStatusChangeMessageReceive (handler: (message: TMessageStatusChange) => void) {
         this.onFriendStatusChangeMessageReceive = handler
+        return this
+    }
+
+    public setErrorMessageReceive (handler: (message: TMessageError) => void) {
+        this.onErrorMessageReceive = handler
         return this
     }
 
@@ -68,6 +74,9 @@ export class MessageEventSubscriber {
 
             case "SOCKET_MESSAGE_STATUS_CHANGE":
                 this.onFriendStatusChangeMessageReceive(message as TMessageStatusChange)
+                break;
+            case "SOCKET_MESSAGE_ERROR":
+                this.onErrorMessageReceive(message as TMessageError)
                 break;
 
         }

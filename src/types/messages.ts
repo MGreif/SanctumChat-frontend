@@ -2,7 +2,7 @@ export type TUIMessageMeta = {
     read: boolean,
 }
 
-type TYPE = "SOCKET_MESSAGE_DIRECT" | "SOCKET_MESSAGE_NOTIFICATION" | "SOCKET_MESSAGE_EVENT" | "SOCKET_MESSAGE_ONLINE_USERS" | "SOCKET_MESSAGE_STATUS_CHANGE" | "SOCKET_MESSAGE_FRIEND_REQUEST"
+type TYPE = "SOCKET_MESSAGE_DIRECT" | "SOCKET_MESSAGE_NOTIFICATION" | "SOCKET_MESSAGE_EVENT" | "SOCKET_MESSAGE_ONLINE_USERS" | "SOCKET_MESSAGE_STATUS_CHANGE" | "SOCKET_MESSAGE_FRIEND_REQUEST" | "SOCKET_MESSAGE_ERROR"
 
 export type TMessageDirect = TUIMessageMeta & {
     recipient: string,
@@ -27,7 +27,7 @@ export type TMessageInitialOnlineUsers = {
     online_users: string[]
 }
 
-export type TMessage = { TYPE: TYPE } & (TMessageDirect | TMessageInitialOnlineUsers | TMessageStatusChange | TMessageFriendRequest | TMessageNotification)
+export type TMessage = { TYPE: TYPE } & (TMessageDirect | TMessageInitialOnlineUsers | TMessageStatusChange | TMessageFriendRequest | TMessageNotification | TMessageError)
 
 export enum EEvent {
     OFFLINE = "OFFLINE",
@@ -42,7 +42,10 @@ export type TMessageStatusChange = {
 export type TMessageFriendRequest = {
     sender_username: string,
     friend_request_id: string
+}
 
+export type TMessageError = {
+    message: string,
 }
 
 export type TMessageNotification = {

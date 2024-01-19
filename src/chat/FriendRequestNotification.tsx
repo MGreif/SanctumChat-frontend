@@ -3,7 +3,7 @@ import { buildApiUrl } from "../constants"
 import { EHTTPMethod, fetchRequest } from "../utils/fetch"
 import { notifications } from "@mantine/notifications"
 import { MessageEventSubscriber, useWebSocketContext } from "./websocket"
-import { TMessageFriendRequest, TMessageNotification } from "../types/messages"
+import { TMessageError, TMessageFriendRequest, TMessageNotification } from "../types/messages"
 import classes from "./FriendNav.module.css"
 import { Button } from "@mantine/core"
 import { showNotification } from "../misc/Notifications/Notifications"
@@ -29,6 +29,14 @@ export const FriendRequestNotification: FC<TFriendRequestNotificationProps> = ({
         })
     }, [])
 
+    const handleErrorMessageReceive = useCallback((message: TMessageError) => {
+        showNotification({
+            type: "error",
+            message: message.message,
+            title: "Error",
+        })
+    }, [])
+
     const handleNotificationReceive = (message: TMessageNotification) => {
         const { title, status, message: m } = message
         showNotification({
@@ -43,6 +51,7 @@ export const FriendRequestNotification: FC<TFriendRequestNotificationProps> = ({
         subscriber.current
             .setFriendRequestMessageReceive(handleFriendRequestMessageReceive)
             .setNotficationMessageReceive(handleNotificationReceive)
+            .setErrorMessageReceive(handleErrorMessageReceive)
 
         websocket.meta?.current.publisher.subscribe(subscriber.current)
     }, [])
