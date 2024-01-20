@@ -119,8 +119,8 @@
 
 
 .dot {
-    height: 10px;
-    width: 10px;
+    height: 20px;
+    width: 20px;
     border-radius: 100%;
 }
 
@@ -129,8 +129,23 @@
 }
 
 .dot.unread {
-    background-color: orange;
+    background-color: rgb(62, 194, 255);
+    position: relative;
+    font-size: 10pt;
+    text-align: center;
+    text-justify: inter-cluster;
+    padding: 0 3px;
+    width: max(15px, fit-content);
 }
+
+.dot.unread .unread_count {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0px;
+}
+
 
 .textarea {
     grid-area: textarea;

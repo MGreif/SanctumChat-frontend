@@ -9,6 +9,7 @@ import { EEvent, TMessageDirect, TMessageInitialOnlineUsers } from "../types/mes
 import { MessageEventSubscriber, useWebSocketContext } from "./websocket"
 import { FriendRequestNotification } from "./FriendRequestNotification"
 import { ActiveChat } from "../persistence/ActiveChat"
+import { TFriend } from "../types/friends"
 
 type TFriendNavProps = {
     activeChat: TUser | null,
@@ -22,7 +23,7 @@ export const FriendNav: FC<TFriendNavProps> = ({
     messages,
 }) => {
     const auth = useAuth()
-    const { data: users, refetch } = useFetchEndpoint<object, TApiResponse<TUser[]>, TUser[]>({
+    const { data: users, refetch } = useFetchEndpoint<object, TApiResponse<TFriend[]>, TFriend[]>({
         url: buildApiUrl("/friends"),
         fetchOptions: {
             transform: (r) => r?.data || [],
@@ -85,7 +86,7 @@ export const FriendNav: FC<TFriendNavProps> = ({
                 isOnline={onlineUsers.includes(u.username)}
                 user={u}
                 onClick={(user) => onChatChange(user)}
-                hasUnreadItems={messages.filter(m => m.sender === u.username).some(m => !m.read)}
+                unreadItems={messages.filter(m => m.sender === u.username && !m.is_read).length || u.unread_message_count || 0}
             />)}
     </nav>
 }

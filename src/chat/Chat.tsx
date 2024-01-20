@@ -86,12 +86,29 @@ export const useChatWebsocket = ({
         loadMessages(0, 15, true)
     }, [activeChat])
 
+    useEffect(() => {
+        if (!privateKey) return
+        const unread = messages.filter(m => !m.is_read && m.recipient == token?.sub && m.sender === activeChat?.username)
+        const unreadIds = unread.map(m => m.id)
+        const unreadIdsFiltered = unreadIds.filter(x => x) as string[]
+        if (!unreadIdsFiltered.length) return
+
+        fetchRequest<{ ids: string[] }, TApiResponse<TMessageDTO[]>>(buildApiUrl("/messages/read?"), {
+            method: EHTTPMethod.PATCH,
+            body: {
+                ids: unreadIdsFiltered
+            }
+        })
+
+    }, [messages])
+
     const handleMessageReceive = useCallback((message: TMessageDirect) => {
         setMessages([
             ...messages,
-            { ...message, read: false }
+            { ...message, is_read: false }
         ])
     }, [messages])
+
 
     const subscriber = useRef(new MessageEventSubscriber("chat"))
 
@@ -111,7 +128,8 @@ export const useChatWebsocket = ({
             if (!body.data?.length) return
             const b: TMessageDirect[] = body.data.map(m => ({
                 message: m.content,
-                read: true,
+                is_read: m.is_read,
+                id: m.id,
                 recipient: m.recipient,
                 sender: m.sender,
                 message_self_encrypted: m.content_self_encrypted,

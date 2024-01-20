@@ -15,7 +15,6 @@ export const Register = () => {
     const [publicKey, setPublicKey] = useState<string | null>(null)
     const handleSubmit: FormEventHandler = async (e: any) => {
         e.preventDefault()
-        console.log(publicKey)
         if (!generateKey && !publicKey) return
         const username = e.target.username.value
         const password = e.target.password.value
