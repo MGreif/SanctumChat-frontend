@@ -1,14 +1,13 @@
-import { FC, useRef } from "react";
+import { FC, FormEventHandler, useRef } from "react";
 import { Layout } from "../layout";
 import classes from "./index.module.css"
-import { Button, TextInput } from "@mantine/core";
+import { Button, Flex, TextInput } from "@mantine/core";
 import { useAuth } from "../Auth/useAuth.tsx";
 import { EHTTPMethod, fetchRequest, useFetchEndpoint } from "../utils/fetch.ts";
 import { buildApiUrl } from "../constants.ts";
 import { TFriendRequest } from "../types/friends.ts";
-import { showErrorNotification, showSuccessNotification } from "../misc/Notifications/Notifications.ts";
 import { TApiResponse } from "../types/Api.ts";
-
+import { showSuccessNotification } from "../misc/Notifications/Notifications.ts";
 
 export const FriendRequests: FC = () => {
     const auth = useAuth()
@@ -47,41 +46,51 @@ export const FriendRequests: FC = () => {
         })
     }
 
-    const handleSendClick = () => {
+    const handleSendClick: FormEventHandler<HTMLFormElement> = (e) => {
+        e.preventDefault()
         const value = inputRef.current?.value
         if (!value) return
-
         fetchRequest<{ recipient: string }, { message: string, data: null }>(buildApiUrl("/friend-requests"), {
             method: EHTTPMethod.POST,
             body: {
                 recipient: value
             }
-        }).then(({ response, body }) => {
-            if (!response?.ok) {
-                showErrorNotification({
-                    title: "Error",
-                    message: body.message
-                })
-                return
-            }
-            showSuccessNotification({
-                title: "Success",
-                message: "Successfully added user"
-            })
-        })
-
-        inputRef.current.value = ""
+        }).then(r => r.response?.ok && showSuccessNotification({
+            message: r.body.message,
+            title: "Success"
+        }))
     }
 
 
-    return <Layout title={"Friend Requests"}>
+    return <Layout className={classes.layout} title={"Friend Requests"}>
         <div className={classes.container}>
-            <div>
-                <h2>Send a friend request</h2>
-                <TextInput ref={inputRef} placeholder={"Max Musterman"} />
-                <Button onClick={() => handleSendClick()}>Send</Button>
-            </div>
+            <Flex gap={"xl"} w={"100%"}>
+                <div className={classes.send}>
+                    <h2>Send a friend request</h2>
+                    <div>
+                        <p>
+                            You can add other users by their username.
+                        </p>
+                        <form onSubmit={handleSendClick}>
+                            <Flex justify={"space-between"} align={"flex-end"} gap={"md"}>
+                                <TextInput w={"100%"} name="username" label="Username" required ref={inputRef} placeholder={"MaxMuster2000"} />
+                                <Button type="submit" w={"90px"}>Send</Button>
+                            </Flex>
+                        </form>
+                    </div>
+                </div>
+                <div className={classes.send}>
+                    <h2>Info</h2>
+                    <p>
+                        By adding a friend, you are sharing your username and public-key with him. Once the recipient approves your request, you can exchange messages.
+                    </p>
+                    <p>If he denies your request, you <b>can not</b> send him a request again.</p>
+
+                </div>
+            </Flex>
+            <h2>Users that want to be your friend</h2>
             <div className={classes.list}>
+                {!friendRequests?.data.length && <h4 className={classes.no_friends}>No pending requests</h4>}
                 {friendRequests?.data.map(u => <div className={classes.listitem}>
                     <span className={classes.name}>{u.sender_id}</span>
                     <span className={classes.buttons}>

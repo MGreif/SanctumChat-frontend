@@ -19,6 +19,7 @@ export const Login = () => {
         e.preventDefault()
         const username = e.target.username.value
         const password = e.target.password.value
+        if (!username || !password) return
         login(username, password).then(establishConnection)
     }
 
@@ -29,9 +30,9 @@ export const Login = () => {
             <form action="/login" onSubmit={handleSubmit} method="POST">
                 <h2>Login</h2>
                 <label htmlFor="username">Username</label> <br />
-                <TextInput name="username" /> <br />
+                <TextInput name="username" required /> <br />
                 <label htmlFor="password">Password</label> <br />
-                <PasswordInput type="password" name="password" /><br />
+                <PasswordInput type="password" name="password" required /><br />
                 <div className={classes.actions}>
                     <Button variant={"light"} type="reset">Reset</Button>
                     <Button type="submit">Login</Button>

@@ -2,43 +2,12 @@
     display: grid;
     grid-template-areas: "chatlist content";
     grid-template-rows: 1fr;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 300px 1fr;
     gap: 1em;
     height: 100%;
+    min-height: 0;
 }
 
-.grid>nav {
-    grid-area: chatlist;
-    border: 1px solid gray;
-    padding: 0.5em;
-    border-bottom: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-}
-
-.grid>nav>span.user-nav-item {
-    padding: 0.5em;
-    border-radius: 2px;
-    border-radius: 10px;
-    margin-bottom: 0.5em;
-    display: flex;
-    background-color: #eeeeee;
-    justify-content: flex-start;
-    width: 100%;
-    align-items: center;
-    gap: 1em;
-}
-
-.grid>nav>span.user-nav-item.active {
-    background-color: #d8d8d8;
-}
-
-
-.grid>nav>span.user-nav-item:hover {
-    background-color: #b4b4b4;
-    cursor: pointer;
-}
 
 .grid>section {
     grid-area: content;
@@ -49,13 +18,13 @@
     flex-direction: column;
     justify-content: flex-end;
     gap: 1em;
-    height: calc(95vh - 60px);
     margin-right: 1em;
 }
 
 .message-container {
     gap: 0.3em;
-    border: 1px solid gray;
+    background-color: white;
+    border-radius: 10px;
     height: 100%;
     padding: 1em;
     overflow-y: auto;
@@ -117,34 +86,6 @@
     width: 100%;
 }
 
-
-.dot {
-    height: 20px;
-    width: 20px;
-    border-radius: 100%;
-}
-
-.dot.online {
-    background-color: green;
-}
-
-.dot.unread {
-    background-color: rgb(62, 194, 255);
-    position: relative;
-    font-size: 10pt;
-    text-align: center;
-    text-justify: inter-cluster;
-    padding: 0 3px;
-    width: max(15px, fit-content);
-}
-
-.dot.unread .unread_count {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0px;
-}
 
 
 .textarea {

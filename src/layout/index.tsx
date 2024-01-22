@@ -13,7 +13,7 @@ type TLayoutProps = PropsWithChildren<{
 export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
     const auth = useAuth()
     const [mode, _] = useState<"dark" | "light">("light")
-    return <div className={`${classes.container} ${mode === "light" ? classes.lightmode : classes.darkmode} ${className}`}>
+    return <div className={`${classes.container} ${mode === "light" ? classes.lightmode : classes.darkmode}`}>
         <div className={classes.header}>
             <h2>
                 {title}
@@ -33,7 +33,7 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
             </span>
         </div>
 
-        <div className={classes.content}>
+        <div className={classes.content + " " + className}>
             {children}
         </div>
         <Footer />

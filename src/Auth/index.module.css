@@ -5,6 +5,7 @@
     padding: 1em;
     width: min(80vw, 600px);
     box-shadow: 2px 2px 12px 3px #656565;
+    background-color: white;
 }
 
 .formcontainer label.required::after {

@@ -9,6 +9,7 @@ import { InfoInline } from "../Components/InfoInline.tsx";
 
 const tooltipText = "As of the current version of SanctumChat, generating an RSA keypair will happen on the server side. Thus eavesdropping on the communication channel could result in potential decryption and disclosure of the private key."
 
+
 export const Register = () => {
     const { register } = useAuth()
     const [generateKey, setChecked] = useState(false)
@@ -18,8 +19,9 @@ export const Register = () => {
         if (!generateKey && !publicKey) return
         const username = e.target.username.value
         const password = e.target.password.value
-        const public_key = toBase64(publicKey || "")
-        register(username, password, public_key, generateKey)
+        if (!username || !password) return
+
+        register(username, password, generateKey, toBase64(publicKey || ""))
     }
 
 
@@ -33,7 +35,7 @@ export const Register = () => {
                 <PasswordInput required type="password" name="password" /><br />
                 <label className={generateKey ? "" : classes.required} htmlFor="public_key">Insert own public RSA key (PKCS#8 .pem file)</label> <br />
                 <FileInput onChange={file => file?.text().then(setPublicKey)} disabled={generateKey} required={!generateKey} />
-                <Checkbox required={false} className={classes.marginTop} onChange={(e) => setChecked(e.target.checked)} mb={"1em"} label={<InfoInline tooltip={tooltipText} text={"Or let the server generate a RSA key pair"} />} />
+                <Checkbox className={classes.marginTop} onChange={(e) => setChecked(e.target.checked)} mb={"1em"} label={<InfoInline tooltip={tooltipText} text={"Or let the server generate a RSA key pair"} />} />
                 <div className={classes.actions}>
                     <Button variant={"light"} type="reset">Reset</Button>
                     <Button type="submit">Register</Button>

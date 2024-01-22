@@ -10,11 +10,19 @@ import { MessageEventSubscriber, useWebSocketContext } from "./websocket"
 import { FriendRequestNotification } from "./FriendRequestNotification"
 import { ActiveChat } from "../persistence/ActiveChat"
 import { TFriend } from "../types/friends"
+import classes from "./FriendNav.module.css"
+
 
 type TFriendNavProps = {
     activeChat: TUser | null,
     onChatChange: (user: TUser) => void
     messages: TMessageDirect[]
+}
+
+const getNoResultsText = (filteredUsers: TFriend[], users: TFriend[]) => {
+    if (!filteredUsers.length && !users.length) return "No friends"
+    if (!filteredUsers.length && users.length) return "No results. Check your filter"
+    return "No results"
 }
 
 export const FriendNav: FC<TFriendNavProps> = ({
@@ -30,6 +38,12 @@ export const FriendNav: FC<TFriendNavProps> = ({
             method: EHTTPMethod.GET,
         }
     }, { skip: !auth.isLoggedIn })
+
+    const [filteredFriends, setFilteredFriends] = useState(users)
+
+    useEffect(() => {
+        setFilteredFriends(users)
+    }, [users])
 
     const { data: activeUsers, refetch: refetchOnlineUsers } = useFetchEndpoint<object, TApiResponse<string[]>>({
         url: buildApiUrl("/friends/active"),
@@ -77,16 +91,34 @@ export const FriendNav: FC<TFriendNavProps> = ({
         onChatChange(foundUser)
     }, [users])
 
-    return <nav>
-        <FriendRequestNotification refetchFriends={onFriendRequestApply} />
-        {users?.filter(u => u.username !== auth.token?.sub).map(u =>
-            <UserNavItem
-                key={u.username}
-                isActiveChat={activeChat?.username === u.username}
-                isOnline={onlineUsers.includes(u.username)}
-                user={u}
-                onClick={(user) => onChatChange(user)}
-                unreadItems={messages.filter(m => m.sender === u.username && !m.is_read).length || u.unread_message_count || 0}
-            />)}
-    </nav>
+    const filterFriends = (search: string) => {
+        if (search == "") {
+            setFilteredFriends(users)
+            return
+        }
+        setFilteredFriends(users?.filter(u => u.username.match(search)))
+    }
+
+
+    return (
+        <div className={classes.container}>
+            <div className={classes.user_search}>
+                <input placeholder="Search ..." onChange={(e) => filterFriends(e.target.value)} />
+            </div>
+            <nav className={classes.nav}>
+                <FriendRequestNotification refetchFriends={onFriendRequestApply} />
+
+                {!filteredFriends?.length && <div className={classes.no_results}>{getNoResultsText(filteredFriends || [], users || [])}</div>}
+                {filteredFriends?.filter(u => u.username !== auth.token?.sub).map(u =>
+                    <UserNavItem
+                        key={u.username}
+                        isActiveChat={activeChat?.username === u.username}
+                        isOnline={onlineUsers.includes(u.username)}
+                        user={u}
+                        onClick={(user) => onChatChange(user)}
+                        unreadItems={messages.filter(m => m.sender === u.username && !m.is_read).length || u.unread_message_count || 0}
+                    />)}
+            </nav>
+        </div>
+    )
 }
