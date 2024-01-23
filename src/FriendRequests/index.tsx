@@ -1,7 +1,7 @@
 import { FC, FormEventHandler, useRef } from "react";
 import { Layout } from "../layout";
 import classes from "./index.module.css"
-import { Button, Flex, TextInput } from "@mantine/core";
+import { Button, TextInput } from "@mantine/core";
 import { useAuth } from "../Auth/useAuth.tsx";
 import { EHTTPMethod, fetchRequest, useFetchEndpoint } from "../utils/fetch.ts";
 import { buildApiUrl } from "../constants.ts";
@@ -63,34 +63,32 @@ export const FriendRequests: FC = () => {
 
 
     return <Layout className={classes.layout} title={"Friend Requests"}>
-        <div className={classes.container}>
-            <Flex gap={"xl"} w={"100%"}>
-                <div className={classes.send}>
-                    <h2>Send a friend request</h2>
+        <div className="mx-auto w-3/4">
+            <div className="flex gap-8 mb-8">
+                <div className="flex-1 border h-fit border-slate-300 p-4 rounded-xl shadow-md">
+                    <h2 className="text-xl mb-4">Send a friend request</h2>
                     <div>
-                        <p>
-                            You can add other users by their username.
-                        </p>
+
                         <form onSubmit={handleSendClick}>
-                            <Flex justify={"space-between"} align={"flex-end"} gap={"md"}>
-                                <TextInput w={"100%"} name="username" label="Username" required ref={inputRef} placeholder={"MaxMuster2000"} />
-                                <Button type="submit" w={"90px"}>Send</Button>
-                            </Flex>
+                            <div className="flex justify-between items-end gap-4">
+                                <TextInput className="w-full" name="username" label="Username" required ref={inputRef} placeholder={"MaxMuster2000"} />
+                                <Button className="bg-indigo-500 w-20" type="submit">Send</Button>
+                            </div>
                         </form>
                     </div>
                 </div>
-                <div className={classes.send}>
-                    <h2>Info</h2>
+                <div className="flex-1 border border-slate-300 p-4 rounded-xl shadow-md h-fit">
+                    <h2 className="text-xl mb-2">Info</h2>
                     <p>
                         By adding a friend, you are sharing your username and public-key with him. Once the recipient approves your request, you can exchange messages.
                     </p>
                     <p>If he denies your request, you <b>can not</b> send him a request again.</p>
 
                 </div>
-            </Flex>
-            <h2>Users that want to be your friend</h2>
-            <div className={classes.list}>
-                {!friendRequests?.data.length && <h4 className={classes.no_friends}>No pending requests</h4>}
+            </div>
+            <h2 className="mb-20 text-center text-3xl font-bold">Users that want to be your friend</h2>
+            <div className="rounded-md min-h-fit">
+                {!friendRequests?.data.length && <h4 className='py-4 text-center text-3xl font-bold text-slate-300'>No pending requests</h4>}
                 {friendRequests?.data.map(u => <div className={classes.listitem}>
                     <span className={classes.name}>{u.sender_id}</span>
                     <span className={classes.buttons}>

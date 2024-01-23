@@ -1,7 +1,6 @@
 import { buildApiUrl } from "../constants"
 import { TApiResponse } from "../types/Api"
 import { EHTTPMethod, useFetchEndpoint } from "../utils/fetch"
-import classes from "./Footer.module.css"
 
 export const Footer = () => {
     const { data, isLoading } = useFetchEndpoint<object, TApiResponse<string>>({
@@ -10,5 +9,8 @@ export const Footer = () => {
             method: EHTTPMethod.GET
         },
     })
-    return <footer className={classes.footer}><span>Frontend Version: {APP_VERSION}</span><span>Backend Version: {isLoading ? "loading ..." : data?.data}</span></footer>
+    return <footer className="flex justify-around items-center h-full w-full mx-auto">
+            <span>Frontend Version: {APP_VERSION}</span>
+            <span>Backend Version: {isLoading ? "loading ..." : data?.data}</span>
+        </footer>
 }

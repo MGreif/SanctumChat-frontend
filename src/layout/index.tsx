@@ -1,5 +1,4 @@
 import { FC, PropsWithChildren, useState } from "react"
-import classes from "./index.module.css"
 import { useAuth } from "../Auth/useAuth"
 import { Link } from "react-router-dom"
 import { Button } from "@mantine/core";
@@ -13,27 +12,27 @@ type TLayoutProps = PropsWithChildren<{
 export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
     const auth = useAuth()
     const [mode, _] = useState<"dark" | "light">("light")
-    return <div className={`${classes.container} ${mode === "light" ? classes.lightmode : classes.darkmode}`}>
-        <div className={classes.header}>
-            <h2>
+    return <div className='h-dvh justify-stretch grid grid-rows-layout'>
+        <div className="h-full flex justify-between items-center p-4">
+            <h2 className="text-2xl">
                 {title}
             </h2>
-            <span className={classes.links}>
+            <span>
                 {auth.isLoggedIn ? <>
-                    <Link to={"/"}>Chat</Link>
-                    <Link to={"/friend-requests"}>Friend Requests</Link>
-                    <><span>Logged in as {auth.token?.sub}</span><Button color={"red"} onClick={auth.logout}>Logout</Button></>
+                    <Link className="mr-2 text-indigo-500" to={"/"}>Chat</Link>
+                    <Link to={"/friend-requests"} className="mr-2 text-indigo-500">Friend Requests</Link>
+                    <span className="mr-2">Logged in as {auth.token?.sub}</span><Button className="bg-red-500" onClick={auth.logout}>Logout</Button>
                 </>
                     :
                     <>
-                        <Link to={"/register"}>Register</Link>
-                        <Link to={"/login"}>Login</Link>
+                        <Link className="mr-2 text-indigo-500" to={"/register"}>Register</Link>
+                        <Link className="text-indigo-500" to={"/login"}>Login</Link>
                     </>
                 }
             </span>
         </div>
 
-        <div className={classes.content + " " + className}>
+        <div className='h-full grid'>
             {children}
         </div>
         <Footer />

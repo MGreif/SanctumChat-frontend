@@ -2,9 +2,9 @@ import { FormEventHandler, useEffect } from "react"
 import { Layout } from "../layout"
 import { useAuth } from "./useAuth.tsx"
 import { useNavigate } from "react-router";
-import classes from "./index.module.css"
 import { Button, PasswordInput, TextInput } from "@mantine/core";
 import { useWebSocketContext } from "../chat/websocket.tsx";
+import { Link } from "react-router-dom";
 export const Login = () => {
     const { login, isLoggedIn } = useAuth()
     const { establishConnection } = useWebSocketContext()
@@ -25,17 +25,21 @@ export const Login = () => {
 
 
 
-    return <Layout title="Login" className={classes.layout}>
-        <div className={classes.formcontainer}>
+    return <Layout title="Login">
+        <div className="border border-slate-300 rounded-md w-3/12 place-self-center shadow-lg">
             <form action="/login" onSubmit={handleSubmit} method="POST">
-                <h2>Login</h2>
-                <label htmlFor="username">Username</label> <br />
-                <TextInput name="username" required /> <br />
-                <label htmlFor="password">Password</label> <br />
-                <PasswordInput type="password" name="password" required /><br />
-                <div className={classes.actions}>
-                    <Button variant={"light"} type="reset">Reset</Button>
-                    <Button type="submit">Login</Button>
+                <h2 className="p-5 rounded-t-md py-8 text-white text-center text-3xl font-semibold bg-indigo-500">Login</h2>
+                <div className="p-4 pb-0">
+                    <label htmlFor="username">Username</label> <br />
+                    <TextInput name="username" required /> <br />
+                    <label htmlFor="password">Password</label> <br />
+                    <PasswordInput type="password" name="password" required /><br />
+                    <Button type="submit" className="w-full bg-indigo-500 hover:bg-indigo-600">Login</Button>
+
+                </div>
+                <div className="grid grid-cols-2 *:text-sm place-items-center my-4 divide-x-2 *:w-full text-center">
+                    <span className="text-slate-400">Dont have an account?</span>
+                    <Link to={"/register"} className="text-indigo-500">Register</Link>
                 </div>
             </form>
         </div>
