@@ -8,6 +8,7 @@ import { buildApiUrl } from "../constants.ts";
 import { TFriendRequest } from "../types/friends.ts";
 import { TApiResponse } from "../types/Api.ts";
 import { showSuccessNotification } from "../misc/Notifications/Notifications.ts";
+import { duplicate } from "../utils/basic.ts";
 
 export const FriendRequests: FC = () => {
     const auth = useAuth()
@@ -63,7 +64,7 @@ export const FriendRequests: FC = () => {
 
 
     return <Layout className={classes.layout} title={"Friend Requests"}>
-        <div className="mx-auto w-3/4">
+        <div className="mx-auto w-3/4 min-h-0 flex flex-col">
             <div className="flex gap-8 mb-8">
                 <div className="flex-1 border h-fit border-slate-300 p-4 rounded-xl shadow-md">
                     <h2 className="text-xl mb-4">Send a friend request</h2>
@@ -86,13 +87,13 @@ export const FriendRequests: FC = () => {
                 </div>
             </div>
             <h2 className="mb-20 text-center text-3xl font-bold">Users that want to be your friend</h2>
-            <div className="rounded-md min-h-fit">
+            <div className="rounded-md min-h-0 overflow-y-auto">
                 {!friendRequests?.data.length && <h4 className='py-4 text-center text-3xl font-bold text-slate-300'>No pending requests</h4>}
-                {friendRequests?.data.map(u => <div className={classes.listitem}>
+                {friendRequests?.data?.map(u => <div className='w-full flex justify-between border border-indigo-300 mb-2 rounded-xl p-3 shadow-sm shadow-indigo-200 items-center'>
                     <span className={classes.name}>{u.sender_id}</span>
                     <span className={classes.buttons}>
-                        <Button color={"red"} onClick={() => handleDenyClick(u.id)}>Deny</Button>
-                        <Button color={"green"} onClick={() => handleAcceptClick(u.id)}>Accept</Button>
+                        <Button className="bg-red-500" onClick={() => handleDenyClick(u.id)}>Deny</Button>
+                        <Button className="bg-green-500" onClick={() => handleAcceptClick(u.id)}>Accept</Button>
                     </span>
                 </div>)}
             </div>

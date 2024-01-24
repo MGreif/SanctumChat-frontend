@@ -13,7 +13,7 @@ export const UserNavItem: FC<TUserNavItemProps> = ({ onClick, user, isOnline, is
     
     return <span
         onClick={() => onClick(user)}
-        className={`${isActiveChat ? "bg-indigo-500" : "bg-indigo-300"} cursor-pointer p-4 flex justify-between items-center hover:bg-indigo-500 text-white rounded-lg w-11/12 m-2`}
+        className={`${isActiveChat ? "bg-indigo-500" : "bg-indigo-300"} cursor-pointer p-4 flex snap-start justify-between items-center hover:bg-indigo-500 text-white rounded-lg w-full`}
     >
         {user.username}
         <span className='flex justify-start gap-2 h-min-0'>

@@ -11,6 +11,7 @@ import { FriendRequestNotification } from "./FriendRequestNotification"
 import { ActiveChat } from "../persistence/ActiveChat"
 import { TFriend } from "../types/friends"
 import classes from "./FriendNav.module.css"
+import { duplicate } from "../utils/basic"
 
 
 type TFriendNavProps = {
@@ -101,11 +102,11 @@ export const FriendNav: FC<TFriendNavProps> = ({
 
 
     return (
-        <div className='flex justify-stretch flex-col p-4 border bg-indigo-100 rounded-md box-border border-indigo-300 shadow-lg'>
+        <div className='flex justify-stretch flex-col p-4 border bg-indigo-100 rounded-md box-border border-indigo-300 shadow-lg min-h-0'>
             <div className='mx-auto text-xl box-border'>
-                <input placeholder="Search ..." className="p-4 box-border w-full rounded-xl mb-2" onChange={(e) => filterFriends(e.target.value)} />
+                <input placeholder="Search ..." className="p-4 box-border w-full rounded-xl mb-2 outline-indigo-500" onChange={(e) => filterFriends(e.target.value)} />
             </div>
-            <nav className='flex flex-col'>
+            <nav className='flex flex-col gap-2 overflow-y-auto min-h-0 h-full snap-y'>
                 <FriendRequestNotification refetchFriends={onFriendRequestApply} />
 
                 {!filteredFriends?.length && <div className={classes.no_results}>{getNoResultsText(filteredFriends || [], users || [])}</div>}

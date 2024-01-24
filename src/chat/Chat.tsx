@@ -183,13 +183,12 @@ export const Chat = () => {
 
         const message = inputRef.current.value
         const recipientRSA = new Cipher({ publicKey: public_key_decoded})
-        const selfRSA = new Cipher({ publicKey: fromBase64(AuthService.Instance.decodedToken!.public_key) })
-        const selfRSAPrivate = new Cipher({ privateKey })
+        const selfRSA = new Cipher({ publicKey: fromBase64(AuthService.Instance.decodedToken!.public_key), privateKey })
         const encrypted_message = recipientRSA.encryptMessage(message)
         const message_self_encrypted = selfRSA.encryptMessage(message)
 
-        const encrypted_message_signature = selfRSAPrivate.signMessage(encrypted_message)
-        const self_encrypted_message_signature = selfRSAPrivate.signMessage(message_self_encrypted)
+        const encrypted_message_signature = selfRSA.signMessage(encrypted_message)
+        const self_encrypted_message_signature = selfRSA.signMessage(message_self_encrypted)
 
         const preparedText = JSON.stringify({
             recipient: recipient.username,
@@ -222,10 +221,10 @@ export const Chat = () => {
             <FriendNav activeChat={activeChat} messages={messages} onChatChange={handleChatChange} />
             <section className='grid relative grid-rows-chat-message grid-cols-1 gap-2 min-h-0 bg-indigo-100 shadow-lg'>
                 <div className="relative min-h-0">
-                <div className='border rounded-md p-4 pb-16 shadow-sm relative scroll-auto h-full overflow-y-auto border-indigo-300' ref={chatContainer}>
+                <div className='border rounded-md p-4 pb-16 shadow-sm relative scroll-auto h-full overflow-y-auto border-indigo-300 snap-y' ref={chatContainer}>
                     <span onClick={() => loadMessages()}>Load more</span>
                     {messagesForChat.map((message, i) =>
-                        <div key={i} className={classes["message-row"]}>
+                        <div key={i} className='w-full grid mb-2 snap-start'>
                                 <MessageBadge
                                     sentByUser={message.sender === auth.token?.sub}
                                     key={i} 
@@ -282,11 +281,8 @@ const MessageBadge: FC<TMessageBadgeProps> = (props) => {
     </span>
 
     if (!props.isVerified) return (
-        <Tooltip style={{ width: "300px" }} multiline label={
+        <Tooltip style={{ width: "300px" }} multiline withArrow label={
             <span>Message signature could not be verified! This message might have been altered or intercepted!
-                <br />
-                <br />
-                In the best case, the sender just used the wrong private key.
             </span>}>
             {Content}
         </Tooltip>
@@ -298,18 +294,40 @@ const MessageBadge: FC<TMessageBadgeProps> = (props) => {
 
 const KeyModal = (props: {setPrivateKey: (key: string | null) => void, privateKey: string | null, publicKey?: string }) => {
     const [open, setOpen] = useState(false)
-    const [privateKey, setPrivateKey] = useState<string | null>(localStorage.getItem("privateKey") || null)
+    const [privateKey, setPrivateKey] = useState<string | null>(null)
 
     useEffect(() => {
         props.setPrivateKey(privateKey)
     }, [privateKey])
 
+    useEffect(() => {
+        const keyInStorage = localStorage.getItem("privateKey") || undefined
+        if (!props.publicKey || !keyInStorage) return;
+        
+        const cipher = new Cipher({ privateKey: keyInStorage, publicKey: props.publicKey })
+        const challenge = "Decrypt me"
+
+        const decrypted = cipher.encryptMessage(challenge)
+        const encrypted = cipher.decryptWithPrivate(decrypted)
+
+        if (encrypted !== challenge) {
+            showErrorNotification({
+                message: "The stored private key failed to solve the decryption challenge. Please use another one",
+                title: "Decryption error"
+            })
+        }
+
+        if (keyInStorage) setPrivateKey(keyInStorage) 
+    }, [])
+
 
     return <>
         <div role="button" onClick={() => setOpen(true)}>
+            <Tooltip multiline style={{ width: 300 }} label="Click to insert or adjust your private key settings." withArrow>
             <KeyRound className={`absolute ${props.privateKey ? "bg-indigo-500" : "bg-red-500"} ${props.privateKey ? "hover:bg-indigo-700" : "hover:bg-red-700"} p-4 box-border w-fit h-fit rounded-lg bg-indigo-500 bottom-4 left-16 transform -translate-x-1/2`} color="white" />
+            </Tooltip>
         </div>
-        <Modal size={"md"} opened={open} onClose={() => setOpen(false)}>
+        <Modal centered title={<h2 className="text-xl">Manage Private-Key settings</h2>} size={"md"} opened={open} onClose={() => setOpen(false)}>
             <KeyInput publicKey={props.publicKey} privateKey={props.privateKey} onChange={(key) => setPrivateKey(key)} />
         </Modal>
     </>

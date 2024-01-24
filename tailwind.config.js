@@ -12,6 +12,7 @@ export default {
       }
     },
   },
+  darkMode: "class", // Change me when you decide to use the OS dark mode settings initially
   plugins: [],
 }
 

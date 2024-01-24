@@ -4,7 +4,6 @@ import { EHTTPMethod, fetchRequest } from "../utils/fetch"
 import { notifications } from "@mantine/notifications"
 import { MessageEventSubscriber, useWebSocketContext } from "./websocket"
 import { TMessageError, TMessageFriendRequest, TMessageNotification } from "../types/messages"
-import classes from "./FriendNav.module.css"
 import { Button } from "@mantine/core"
 import { showNotification } from "../misc/Notifications/Notifications"
 type TFriendRequestNotificationProps = {
@@ -21,10 +20,10 @@ export const FriendRequestNotification: FC<TFriendRequestNotificationProps> = ({
         showNotification({
             type: "info",
             id: friend_request_id,
-            message: <>{sender_username} sent you a friend request <div className={classes.friendrequest}>
-                <Button color={"green"} onClick={() => handleFriendRequestClick({ id: friend_request_id, accepted: true })}>Accept</Button>
-                <Button color={"red"} onClick={() => handleFriendRequestClick({ id: friend_request_id, accepted: false })}>Deny</Button>
-            </div></>,
+            message: <div className="flex gap-2 items-center"><span>{sender_username} sent you a friend request </span>
+                <Button className="bg-green-500" onClick={() => handleFriendRequestClick({ id: friend_request_id, accepted: true })}>Accept</Button>
+                <Button className="bg-red-500" onClick={() => handleFriendRequestClick({ id: friend_request_id, accepted: false })}>Deny</Button>
+            </div>,
             title: "New Friend Request",
         })
     }, [])
