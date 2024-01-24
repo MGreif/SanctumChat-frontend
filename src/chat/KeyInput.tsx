@@ -1,17 +1,18 @@
-import { Button, Checkbox, FileInput, Tooltip } from "@mantine/core"
-import { KeyRound } from "lucide-react"
+import { Button, Checkbox, Tooltip } from "@mantine/core"
 import { ChangeEventHandler, FC, useEffect, useState } from "react"
+import { Cipher } from "../utils/cipher"
 
 type TKeyInputProps = {
     onChange: (file: string | null) => void
-    privateKey?: string | null
+    privateKey: string | null
+    publicKey?: string
 }
 
 const tooltipText = "Checking this checkbox will save your private key in your browsers local-storage. It may be easier and more comfortable, but having your private key saved might result in leaking your private key if someone manages to access your browser/local-storage."
 
-export const KeyInput: FC<TKeyInputProps> = ({ onChange, privateKey }) => {
+export const KeyInput: FC<TKeyInputProps> = ({ onChange, privateKey, publicKey }) => {
     const [checked, setChecked] = useState(!!localStorage.getItem("privateKey"))
-    
+    const [error, setError] = useState<string | null>(null)
  
 
     useEffect(() => {
@@ -22,10 +23,22 @@ export const KeyInput: FC<TKeyInputProps> = ({ onChange, privateKey }) => {
         }
     }, [checked, privateKey])
 
-    const handleInput: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const handleInput: ChangeEventHandler<HTMLInputElement> = async (e) => {
+        setError(null)
         const file = e.target.files?.[0]
         if (!file) return
-        file.text().then(text => text && onChange(text))
+        const privateKey = await file.text()
+        const cipher = new Cipher({ privateKey, publicKey })
+        const challenge = "Decrypt me"
+
+        const decrypted = cipher.encryptMessage(challenge)
+        const encrypted = cipher.decryptWithPrivate(decrypted)
+
+        if (encrypted === challenge) {
+            onChange(privateKey)
+        } else {
+            setError("The given private key did not solve the decryption challenge. Please try a different key.")
+        }
     }
 
     return <div className="relative">
@@ -39,6 +52,9 @@ export const KeyInput: FC<TKeyInputProps> = ({ onChange, privateKey }) => {
         <Button disabled={!privateKey} onClick={() => onChange(null)} className="bg-red-500 w-full flex-1">Remove current key</Button>
 
         </div>
+        {error && <div className="p-4 border border-red-600 bg-red-300 text-center text-xl">
+            {error}
+        </div>}
     </div>
 
 }

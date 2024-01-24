@@ -10,7 +10,6 @@ type TUserNavItemProps = {
 }
 
 export const UserNavItem: FC<TUserNavItemProps> = ({ onClick, user, isOnline, isActiveChat, unreadItems }) => {
-    console.log(user, isActiveChat);
     
     return <span
         onClick={() => onClick(user)}

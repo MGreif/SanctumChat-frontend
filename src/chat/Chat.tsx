@@ -1,8 +1,6 @@
-import { FormEventHandler, useCallback, useEffect, useRef, useState } from "react";
+import { FC, FormEventHandler, useCallback, useEffect, useRef, useState } from "react";
 import { ActionIcon, Modal, TextInput, Tooltip } from "@mantine/core";
-import { JSEncryptRSAKey } from "jsencrypt/lib/JSEncryptRSAKey";
 import { fromBase64 } from "js-base64";
-import { sha256 } from "js-sha256";
 
 import { Layout } from "../layout"
 import { AuthService } from "../Auth/AuthService.ts";
@@ -19,7 +17,8 @@ import { MessageEventSubscriber, useWebSocketContext } from "./websocket.tsx";
 import { KeyInput } from "./KeyInput.tsx";
 import { ActiveChat } from "../persistence/ActiveChat.ts";
 import { TApiResponse } from "../types/Api.ts";
-import { Key, KeyRound, Send, SendHorizonal } from "lucide-react";
+import { KeyRound, SendHorizonal } from "lucide-react";
+import { Cipher } from "../utils/cipher.ts";
 
 type TUseChatWebsocketProps = {
     activeChat: TUser | null,
@@ -147,6 +146,8 @@ export const useChatWebsocket = ({
 }
 
 
+
+
 export const Chat = () => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [privateKey, setPrivateKey] = useState<string | null>(null)
@@ -158,6 +159,8 @@ export const Chat = () => {
         activeChat,
         privateKey
     })
+
+    const userPublicKey = fromBase64(auth.token?.public_key || "")
 
     useEffect(() => {
         if (!chatContainer.current) return
@@ -177,15 +180,16 @@ export const Chat = () => {
 
         const public_key_encoded = recipient.public_key
         const public_key_decoded = fromBase64(public_key_encoded)
-        const message = inputRef.current.value
-        const recipientRSA = new JSEncryptRSAKey(public_key_decoded)
-        const selfRSA = new JSEncryptRSAKey(fromBase64(AuthService.Instance.decodedToken!.public_key))
-        const selfRSAPrivate = new JSEncryptRSAKey(privateKey)
-        const encrypted_message = recipientRSA.encrypt(message)
-        const message_self_encrypted = selfRSA.encrypt(message)
 
-        const encrypted_message_signature = selfRSAPrivate.sign(encrypted_message, sha256, "sha256")
-        const self_encrypted_message_signature = selfRSAPrivate.sign(message_self_encrypted, sha256, "sha256")
+        const message = inputRef.current.value
+        const recipientRSA = new Cipher({ publicKey: public_key_decoded})
+        const selfRSA = new Cipher({ publicKey: fromBase64(AuthService.Instance.decodedToken!.public_key) })
+        const selfRSAPrivate = new Cipher({ privateKey })
+        const encrypted_message = recipientRSA.encryptMessage(message)
+        const message_self_encrypted = selfRSA.encryptMessage(message)
+
+        const encrypted_message_signature = selfRSAPrivate.signMessage(encrypted_message)
+        const self_encrypted_message_signature = selfRSAPrivate.signMessage(message_self_encrypted)
 
         const preparedText = JSON.stringify({
             recipient: recipient.username,
@@ -222,13 +226,13 @@ export const Chat = () => {
                     <span onClick={() => loadMessages()}>Load more</span>
                     {messagesForChat.map((message, i) =>
                         <div key={i} className={classes["message-row"]}>
-                            <Tooltip style={{ width: "300px" }} multiline label={message.message_verified ? "" : "Message signature could not be verified! This message might have been altered or intercepted!"} disabled={message.message_verified}>
-                                <span
-                                    className={`${classes.message} ${(message.sender === auth.token?.sub) ? classes.sender : classes.receiver} ${message.message_verified ? classes.verified : classes["verification-failed"]}`}
-                                    key={i}>
-                                    {message.message_decrypted || "Encrypted"}
-                                </span>
-                            </Tooltip>
+                                <MessageBadge
+                                    sentByUser={message.sender === auth.token?.sub}
+                                    key={i} 
+                                    content={message.message_decrypted || ""}
+                                    isEncrypted={!message.message_decrypted}
+                                    isVerified={message.message_verified || false}
+                                    />
                         </div>
                     )}
                     </div>
@@ -238,7 +242,7 @@ export const Chat = () => {
                             <ActionIcon type="submit" size={"lg"} className="absolute shadow-lg -right-12 top-0 border rounded-full p-1.5 bg-indigo-500 hover:bg-indigo-700 cursor-pointer "><SendHorizonal color="white" size={20} /></ActionIcon>
                         </div>
                         <div>
-                            <KeyModal setPrivateKey={setPrivateKey} privateKey={privateKey} />
+                            <KeyModal publicKey={userPublicKey} setPrivateKey={setPrivateKey} privateKey={privateKey} />
                         </div>
                     </form>
                     
@@ -248,7 +252,51 @@ export const Chat = () => {
     </Layout>
 }
 
-const KeyModal = (props: {setPrivateKey: (key: string | null) => void, privateKey: string | null}) => {
+type TMessageBadgeProps = {
+    className?: string
+    content: string
+    isEncrypted: boolean
+    isVerified: boolean
+    sentByUser: boolean
+}
+
+
+const MessageBadge: FC<TMessageBadgeProps> = (props) => {
+
+    const extraClasses = []
+
+    const color = props.sentByUser ? "bg-indigo-500" : "bg-sky-500"
+
+    extraClasses.push(props.isVerified ? color : "bg-red-700")
+
+
+    if (props.sentByUser) {
+        extraClasses.push("justify-self-end")
+    } else {
+        extraClasses.push("justify-self-start")
+    }
+
+
+    const Content = <span className={`${props.className || ""} ${extraClasses.join(" ")} p-1 px-3 text-white rounded-2xl w-fit`}>
+        {props.isEncrypted ? "Encrypted" : props.content}
+    </span>
+
+    if (!props.isVerified) return (
+        <Tooltip style={{ width: "300px" }} multiline label={
+            <span>Message signature could not be verified! This message might have been altered or intercepted!
+                <br />
+                <br />
+                In the best case, the sender just used the wrong private key.
+            </span>}>
+            {Content}
+        </Tooltip>
+    )
+    
+
+    return Content
+}
+
+const KeyModal = (props: {setPrivateKey: (key: string | null) => void, privateKey: string | null, publicKey?: string }) => {
     const [open, setOpen] = useState(false)
     const [privateKey, setPrivateKey] = useState<string | null>(localStorage.getItem("privateKey") || null)
 
@@ -262,7 +310,7 @@ const KeyModal = (props: {setPrivateKey: (key: string | null) => void, privateKe
             <KeyRound className={`absolute ${props.privateKey ? "bg-indigo-500" : "bg-red-500"} ${props.privateKey ? "hover:bg-indigo-700" : "hover:bg-red-700"} p-4 box-border w-fit h-fit rounded-lg bg-indigo-500 bottom-4 left-16 transform -translate-x-1/2`} color="white" />
         </div>
         <Modal size={"md"} opened={open} onClose={() => setOpen(false)}>
-            <KeyInput privateKey={props.privateKey} onChange={(key) => setPrivateKey(key)} />
+            <KeyInput publicKey={props.publicKey} privateKey={props.privateKey} onChange={(key) => setPrivateKey(key)} />
         </Modal>
     </>
 
