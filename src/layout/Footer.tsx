@@ -9,7 +9,7 @@ export const Footer = () => {
             method: EHTTPMethod.GET
         },
     })
-    return <footer className="flex justify-around items-center h-full w-full mx-auto">
+    return <footer className="flex justify-around items-center h-fit w-full m-auto">
             <span>Frontend Version: {APP_VERSION}</span>
             <span>Backend Version: {isLoading ? "loading ..." : data?.data}</span>
         </footer>

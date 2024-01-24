@@ -1,5 +1,5 @@
 import { FormEventHandler, useCallback, useEffect, useRef, useState } from "react";
-import { ActionIcon, TextInput, Tooltip } from "@mantine/core";
+import { ActionIcon, Modal, TextInput, Tooltip } from "@mantine/core";
 import { JSEncryptRSAKey } from "jsencrypt/lib/JSEncryptRSAKey";
 import { fromBase64 } from "js-base64";
 import { sha256 } from "js-sha256";
@@ -19,7 +19,7 @@ import { MessageEventSubscriber, useWebSocketContext } from "./websocket.tsx";
 import { KeyInput } from "./KeyInput.tsx";
 import { ActiveChat } from "../persistence/ActiveChat.ts";
 import { TApiResponse } from "../types/Api.ts";
-import { Send, SendHorizonal } from "lucide-react";
+import { Key, KeyRound, Send, SendHorizonal } from "lucide-react";
 
 type TUseChatWebsocketProps = {
     activeChat: TUser | null,
@@ -210,12 +210,15 @@ export const Chat = () => {
         return <Layout title="You are not logged in, please login"></Layout>
     }
 
+
+
     const messagesForChat = messages.filter(m => m.recipient === activeChat?.username || m.sender === activeChat?.username)
     return <Layout title="Chat">
-        <div className="grid-cols-chat grid gap-4 mx-4">
+        <div className="grid-cols-chat grid gap-4 mx-4 min-h-0">
             <FriendNav activeChat={activeChat} messages={messages} onChatChange={handleChatChange} />
-            <section className='grid grid-rows-chat-message grid-cols-1 gap-2'>
-                <div className='border rounded-md p-4 shadow-sm relative' ref={chatContainer}>
+            <section className='grid relative grid-rows-chat-message grid-cols-1 gap-2 min-h-0 bg-indigo-100 shadow-lg'>
+                <div className="relative min-h-0">
+                <div className='border rounded-md p-4 pb-16 shadow-sm relative scroll-auto h-full overflow-y-auto border-indigo-300' ref={chatContainer}>
                     <span onClick={() => loadMessages()}>Load more</span>
                     {messagesForChat.map((message, i) =>
                         <div key={i} className={classes["message-row"]}>
@@ -228,18 +231,39 @@ export const Chat = () => {
                             </Tooltip>
                         </div>
                     )}
+                    </div>
                     <form onSubmit={handleMessageSend}>
-                        <div className="absolute bottom-0 w-3/4 left-1/2 transform -translate-x-1/2 mb-3">
-                            <TextInput placeholder="Hola" className="w-full shadow-lg" ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleMessageSend()} />
+                        <div className="absolute bottom-4 w-3/4 left-1/2 transform -translate-x-1/2">
+                            <TextInput placeholder="Hola" className="w-full shadow-md" ref={inputRef} />
                             <ActionIcon type="submit" size={"lg"} className="absolute shadow-lg -right-12 top-0 border rounded-full p-1.5 bg-indigo-500 hover:bg-indigo-700 cursor-pointer "><SendHorizonal color="white" size={20} /></ActionIcon>
+                        </div>
+                        <div>
+                            <KeyModal setPrivateKey={setPrivateKey} privateKey={privateKey} />
                         </div>
                     </form>
                     
                 </div>
-                <div>
-                    <KeyInput onChange={setPrivateKey} />
-                </div>
             </section>
         </div>
     </Layout>
+}
+
+const KeyModal = (props: {setPrivateKey: (key: string | null) => void, privateKey: string | null}) => {
+    const [open, setOpen] = useState(false)
+    const [privateKey, setPrivateKey] = useState<string | null>(localStorage.getItem("privateKey") || null)
+
+    useEffect(() => {
+        props.setPrivateKey(privateKey)
+    }, [privateKey])
+
+
+    return <>
+        <div role="button" onClick={() => setOpen(true)}>
+            <KeyRound className={`absolute ${props.privateKey ? "bg-indigo-500" : "bg-red-500"} ${props.privateKey ? "hover:bg-indigo-700" : "hover:bg-red-700"} p-4 box-border w-fit h-fit rounded-lg bg-indigo-500 bottom-4 left-16 transform -translate-x-1/2`} color="white" />
+        </div>
+        <Modal size={"md"} opened={open} onClose={() => setOpen(false)}>
+            <KeyInput privateKey={props.privateKey} onChange={(key) => setPrivateKey(key)} />
+        </Modal>
+    </>
+
 }

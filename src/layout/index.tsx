@@ -12,7 +12,7 @@ type TLayoutProps = PropsWithChildren<{
 export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
     const auth = useAuth()
     const [mode, _] = useState<"dark" | "light">("light")
-    return <div className='h-dvh justify-stretch grid grid-rows-layout'>
+    return <div className='h-dvh max-h-dvh justify-stretch grid grid-rows-layout'>
         <div className="h-full flex justify-between items-center p-4">
             <h2 className="text-2xl">
                 {title}
@@ -32,7 +32,7 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
             </span>
         </div>
 
-        <div className='h-full grid'>
+        <div className='h-full grid min-h-0'>
             {children}
         </div>
         <Footer />

@@ -101,11 +101,11 @@ export const FriendNav: FC<TFriendNavProps> = ({
 
 
     return (
-        <div className={classes.container}>
-            <div className={classes.user_search}>
-                <input placeholder="Search ..." onChange={(e) => filterFriends(e.target.value)} />
+        <div className='flex justify-stretch flex-col p-4 border bg-indigo-100 rounded-md box-border border-indigo-300 shadow-lg'>
+            <div className='mx-auto text-xl box-border'>
+                <input placeholder="Search ..." className="p-4 box-border w-full rounded-xl mb-2" onChange={(e) => filterFriends(e.target.value)} />
             </div>
-            <nav className={classes.nav}>
+            <nav className='flex flex-col'>
                 <FriendRequestNotification refetchFriends={onFriendRequestApply} />
 
                 {!filteredFriends?.length && <div className={classes.no_results}>{getNoResultsText(filteredFriends || [], users || [])}</div>}
