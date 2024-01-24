@@ -11,7 +11,6 @@ import { FriendRequestNotification } from "./FriendRequestNotification"
 import { ActiveChat } from "../persistence/ActiveChat"
 import { TFriend } from "../types/friends"
 import classes from "./FriendNav.module.css"
-import { duplicate } from "../utils/basic"
 
 
 type TFriendNavProps = {

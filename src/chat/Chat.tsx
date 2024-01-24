@@ -4,7 +4,6 @@ import { fromBase64 } from "js-base64";
 
 import { Layout } from "../layout"
 import { AuthService } from "../Auth/AuthService.ts";
-import classes from "./chat.module.css"
 import { EHTTPMethod, fetchRequest } from "../utils/fetch";
 import { useAuth } from "../Auth/useAuth.tsx";
 import { buildApiUrl } from "../constants.ts";

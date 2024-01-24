@@ -8,7 +8,6 @@ import { buildApiUrl } from "../constants.ts";
 import { TFriendRequest } from "../types/friends.ts";
 import { TApiResponse } from "../types/Api.ts";
 import { showSuccessNotification } from "../misc/Notifications/Notifications.ts";
-import { duplicate } from "../utils/basic.ts";
 
 export const FriendRequests: FC = () => {
     const auth = useAuth()
