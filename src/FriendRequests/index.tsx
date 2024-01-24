@@ -68,7 +68,6 @@ export const FriendRequests: FC = () => {
                 <div className="flex-1 border h-fit border-slate-300 p-4 rounded-xl shadow-md">
                     <h2 className="text-xl mb-4">Send a friend request</h2>
                     <div>
-
                         <form onSubmit={handleSendClick}>
                             <div className="flex justify-between items-end gap-4">
                                 <TextInput className="w-full" name="username" label="Username" required ref={inputRef} placeholder={"MaxMuster2000"} />

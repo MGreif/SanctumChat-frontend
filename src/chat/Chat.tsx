@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { TextInput, Tooltip } from "@mantine/core";
+import { FormEventHandler, useCallback, useEffect, useRef, useState } from "react";
+import { ActionIcon, TextInput, Tooltip } from "@mantine/core";
 import { JSEncryptRSAKey } from "jsencrypt/lib/JSEncryptRSAKey";
 import { fromBase64 } from "js-base64";
 import { sha256 } from "js-sha256";
@@ -19,6 +19,7 @@ import { MessageEventSubscriber, useWebSocketContext } from "./websocket.tsx";
 import { KeyInput } from "./KeyInput.tsx";
 import { ActiveChat } from "../persistence/ActiveChat.ts";
 import { TApiResponse } from "../types/Api.ts";
+import { Send, SendHorizonal } from "lucide-react";
 
 type TUseChatWebsocketProps = {
     activeChat: TUser | null,
@@ -163,7 +164,8 @@ export const Chat = () => {
         chatContainer.current.scrollTop = chatContainer.current.scrollHeight
     }, [messages])
 
-    const handleMessageSend = () => {
+    const handleMessageSend: FormEventHandler = (e) => {
+        e.preventDefault()
         if (!inputRef.current?.value) return
         const recipient = activeChat
         if (!recipient) return
@@ -210,10 +212,10 @@ export const Chat = () => {
 
     const messagesForChat = messages.filter(m => m.recipient === activeChat?.username || m.sender === activeChat?.username)
     return <Layout title="Chat">
-        <div className={classes.grid}>
+        <div className="grid-cols-chat grid gap-4 mx-4">
             <FriendNav activeChat={activeChat} messages={messages} onChatChange={handleChatChange} />
-            <section className={classes.chat}>
-                <div className={classes["message-container"]} ref={chatContainer}>
+            <section className='grid grid-rows-chat-message grid-cols-1 gap-2'>
+                <div className='border rounded-md p-4 shadow-sm relative' ref={chatContainer}>
                     <span onClick={() => loadMessages()}>Load more</span>
                     {messagesForChat.map((message, i) =>
                         <div key={i} className={classes["message-row"]}>
@@ -226,13 +228,18 @@ export const Chat = () => {
                             </Tooltip>
                         </div>
                     )}
+                    <form onSubmit={handleMessageSend}>
+                        <div className="absolute bottom-0 w-3/4 left-1/2 transform -translate-x-1/2 mb-3">
+                            <TextInput placeholder="Hola" className="w-full shadow-lg" ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleMessageSend()} />
+                            <ActionIcon type="submit" size={"lg"} className="absolute shadow-lg -right-12 top-0 border rounded-full p-1.5 bg-indigo-500 hover:bg-indigo-700 cursor-pointer "><SendHorizonal color="white" size={20} /></ActionIcon>
+                        </div>
+                    </form>
+                    
                 </div>
-                <TextInput placeholder="Hola" className={classes.input} ref={inputRef} onKeyDown={(e) => e.key === "Enter" && handleMessageSend()} />
-                <div className={classes.textarea}>
+                <div>
                     <KeyInput onChange={setPrivateKey} />
                 </div>
             </section>
-
         </div>
     </Layout>
 }
