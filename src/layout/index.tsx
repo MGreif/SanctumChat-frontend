@@ -5,7 +5,7 @@ import { Button } from "@mantine/core";
 import { Footer } from "./Footer";
 
 type TLayoutProps = PropsWithChildren<{
-    title: string,
+    title?: string,
     className?: string
 }>
 
@@ -14,9 +14,9 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
     const [mode, _] = useState<"dark" | "light">("light")
     return <div className={`h-dvh max-h-dvh justify-stretch grid grid-rows-layout ${mode === "dark" ? "dark" : ''}`}>
         <div className="h-full flex justify-between items-center p-4 bg-white dark:bg-stone-900">
-            <h2 className="text-2xl">
+            {title && <h2 className="text-2xl">
                 {title}
-            </h2>
+            </h2>}
             <span>
                 {auth.isLoggedIn && <>
                     <Link className="mr-2 text-indigo-500 underline" to={"/"}>Chat</Link>

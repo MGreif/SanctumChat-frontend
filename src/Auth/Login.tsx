@@ -25,8 +25,8 @@ export const Login = () => {
 
 
 
-    return <Layout title="Login">
-        <div className="border border-slate-300 rounded-md w-3/12 place-self-center shadow-lg">
+    return <Layout>
+        <div className="border border-slate-300 rounded-md min-w-fit w-3/12 place-self-center shadow-lg">
             <form action="/login" onSubmit={handleSubmit} method="POST">
                 <h2 className="p-5 rounded-t-md py-8 text-white text-center text-3xl font-semibold bg-indigo-500">Login</h2>
                 <div className="p-4 pb-0">
