@@ -1,4 +1,4 @@
-import { FC, FormEventHandler, useCallback, useEffect, useRef, useState } from "react";
+import { FC, FormEventHandler, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActionIcon, Modal, TextInput, Tooltip } from "@mantine/core";
 import { fromBase64 } from "js-base64";
 
@@ -29,7 +29,7 @@ export const useChatWebsocket = ({
     privateKey
 }: TUseChatWebsocketProps) => {
     const websocket = useWebSocketContext()
-    const [messages, _setMessages] = useState<TMessageDirect[]>([])
+    const [messages, _setMessages] = useState<TMessageDirect[] | null>(null)
     const [page, setPage] = useState(0)
     const { token } = useAuth()
 
@@ -72,7 +72,7 @@ export const useChatWebsocket = ({
         const recipient = activeChat
         if (!recipient) return
 
-        const verifiedMessages = verifyMessagesSignature(messages, recipient.public_key, token?.public_key)
+        const verifiedMessages = verifyMessagesSignature(messages || [], recipient.public_key, token?.public_key)
         if (!verifiedMessages) return console.error("Could not verify signatures")
 
         const decryptedMessages = decryptMessages(verifiedMessages, private_key)
@@ -82,12 +82,13 @@ export const useChatWebsocket = ({
     }
 
     useEffect(() => {
+        _setMessages(null)
         loadMessages(0, 15, true)
     }, [activeChat])
 
     useEffect(() => {
         if (!privateKey) return
-        const unread = messages.filter(m => !m.is_read && m.recipient == token?.sub && m.sender === activeChat?.username)
+        const unread = messages?.filter(m => !m.is_read && m.recipient == token?.sub && m.sender === activeChat?.username) || []
         const unreadIds = unread.map(m => m.id)
         const unreadIdsFiltered = unreadIds.filter(x => x) as string[]
         if (!unreadIdsFiltered.length) return
@@ -103,7 +104,7 @@ export const useChatWebsocket = ({
 
     const handleMessageReceive = useCallback((message: TMessageDirect) => {
         setMessages([
-            ...messages,
+            ...messages || [],
             { ...message, is_read: false }
         ])
     }, [messages])
@@ -135,7 +136,7 @@ export const useChatWebsocket = ({
                 message_self_encrypted_signature: m.content_self_encrypted_signature,
                 message_signature: m.content_signature,
             }))
-            let newMessages = clearMessages ? b : [...b, ...messages]
+            let newMessages = clearMessages ? b : [...b, ...(messages || [])]
             setMessages(newMessages)
             setPage(index + 1)
         })
@@ -214,14 +215,15 @@ export const Chat = () => {
 
 
 
-    const messagesForChat = messages.filter(m => m.recipient === activeChat?.username || m.sender === activeChat?.username)
+    const messagesForChat = messages?.filter(m => m.recipient === activeChat?.username || m.sender === activeChat?.username) || []
     return <Layout title="Chat">
         <div className="grid-cols-chat grid gap-4 mx-4 min-h-0">
-            <FriendNav activeChat={activeChat} messages={messages} onChatChange={handleChatChange} />
-            <section className='grid relative grid-rows-chat-message grid-cols-1 gap-2 min-h-0 bg-indigo-100 shadow-lg'>
+            <FriendNav activeChat={activeChat} messages={messages || []} onChatChange={handleChatChange} />
+            <section className='grid relative grid-rows-chat-message grid-cols-1 gap-2 min-h-0 bg-slate-100 shadow-lg'>
                 <div className="relative min-h-0">
                 <div className='border rounded-md p-4 pb-16 shadow-sm relative scroll-auto h-full overflow-y-auto border-indigo-300 snap-y' ref={chatContainer}>
-                    <span onClick={() => loadMessages()}>Load more</span>
+                    {!messages && <MessageSkeleton />}
+                    {messages?.length && <span onClick={() => loadMessages()}>Load more</span>}
                     {messagesForChat.map((message, i) =>
                         <div key={i} className='w-full grid mb-2 snap-start'>
                                 <MessageBadge
@@ -248,6 +250,22 @@ export const Chat = () => {
             </section>
         </div>
     </Layout>
+}
+
+
+const getBool = () => Math.random() > 0.5
+const getWidth = () => ["w-44","w-64", "w-36", "w-96"][Math.floor(Math.random() * 4)]
+
+const MessageSkeleton = () => {
+    const data = useMemo(() => Array(15).fill(1).map(() => [getBool(), getWidth()]), [])
+    return <div className="w-full h-full text-center">
+        <div className="w-full grid mb-2">
+            {
+                data.map(([sender, width]) => <span className={`justify-self-${sender ? "start" : "end"} px-3 text-white mb-2 p-2 rounded-2xl bg-indigo-100 ${width} h-7`}></span>)
+            }
+            
+        </div>
+    </div>
 }
 
 type TMessageBadgeProps = {

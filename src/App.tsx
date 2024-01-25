@@ -27,7 +27,9 @@ const routes = createBrowserRouter([
     }])
 
 export const App = () => {
-    return <MantineProvider>
+    return <MantineProvider theme={{
+        primaryColor: "indigo"
+    }}>
         <WebSocketContextProvider>
             <Notifications position={"bottom-center"} withinPortal={true} />
             <RouterProvider router={routes} />

@@ -52,9 +52,11 @@ export const KeyInput: FC<TKeyInputProps> = ({ onChange, privateKey, publicKey }
         <Button disabled={!privateKey} onClick={() => onChange(null)} className="bg-red-500 w-full flex-1">Remove current key</Button>
 
         </div>
-        {error && <div className="p-4 border border-red-600 bg-red-300 text-center text-xl">
+        {error && <div className="p-4 border mt-3 border-red-600 bg-red-300 text-center text-xl">
             {error}
         </div>}
+
+        {!error && privateKey && <div className="p-4 border mt-3 border-green-600 bg-green-300 text-center text-xl">Your private key successfully solved the decryption challenge.</div>}
     </div>
 
 }

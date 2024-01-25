@@ -101,9 +101,9 @@ export const FriendNav: FC<TFriendNavProps> = ({
 
 
     return (
-        <div className='flex justify-stretch flex-col p-4 border bg-indigo-100 rounded-md box-border border-indigo-300 shadow-lg min-h-0'>
+        <div className='flex justify-stretch flex-col p-4 border bg-slate-100 rounded-md box-border border-indigo-300 shadow-lg min-h-0'>
             <div className='mx-auto text-xl box-border'>
-                <input placeholder="Search ..." className="p-4 box-border w-full rounded-xl mb-2 outline-indigo-500" onChange={(e) => filterFriends(e.target.value)} />
+                <input placeholder="Search ..." className="p-4 box-border border border-slate-300 w-full rounded-xl mb-2 outline-indigo-500" onChange={(e) => filterFriends(e.target.value)} />
             </div>
             <nav className='flex flex-col gap-2 overflow-y-auto min-h-0 h-full snap-y'>
                 <FriendRequestNotification refetchFriends={onFriendRequestApply} />

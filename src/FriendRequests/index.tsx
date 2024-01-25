@@ -85,9 +85,9 @@ export const FriendRequests: FC = () => {
 
                 </div>
             </div>
-            <h2 className="mb-20 text-center text-3xl font-bold">Users that want to be your friend</h2>
+            <h2 className="mb-20 text-center text-3xl text-indigo-500 font-bold">Users that want to be your friend</h2>
             <div className="rounded-md min-h-0 overflow-y-auto">
-                {!friendRequests?.data.length && <h4 className='py-4 text-center text-3xl font-bold text-slate-300'>No pending requests</h4>}
+                {!friendRequests?.data.length && <h4 className='py-4 text-center text-3xl font-bold text-indigo-200'>No pending requests</h4>}
                 {friendRequests?.data?.map(u => <div className='w-full flex justify-between border border-indigo-300 mb-2 rounded-xl p-3 shadow-sm shadow-indigo-200 items-center'>
                     <span className={classes.name}>{u.sender_id}</span>
                     <span className={classes.buttons}>
