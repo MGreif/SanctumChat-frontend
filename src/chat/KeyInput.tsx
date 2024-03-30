@@ -49,7 +49,7 @@ export const KeyInput: FC<TKeyInputProps> = ({ onChange, privateKey, publicKey }
 
         <div className="flex gap-2">
         <Checkbox className="flex-1" disabled={!privateKey} label={<span>Save in Browser <Tooltip multiline withinPortal style={{ width: "300px", whiteSpace: "pre-wrap", lineBreak: "normal" }} label={tooltipText}><span>(not recommended)</span></Tooltip></span>} checked={checked} onChange={(e) => setChecked(e.target.checked)} />
-        <Button disabled={!privateKey} onClick={() => onChange(null)} className="bg-red-500 w-full flex-1">Remove current key</Button>
+        <Button disabled={!privateKey} onClick={() => onChange(null)} className="bg-red-500 hover:bg-red-700 w-full flex-1">Remove current key</Button>
 
         </div>
         {error && <div className="p-4 border mt-3 border-red-600 bg-red-300 text-center text-xl">

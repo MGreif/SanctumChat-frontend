@@ -9,7 +9,7 @@ import { useAuth } from "../Auth/useAuth.tsx";
 import { buildApiUrl } from "../constants.ts";
 import { showErrorNotification } from "../misc/Notifications/Notifications.ts";
 import { TMessageDTO, TMessageDirect } from "../types/messages.ts";
-import { decryptMessages, verifyMessagesSignature } from "../utils/message.ts";
+import { tryVerifyAndDecryptMessages } from "../utils/message.ts";
 import { FriendNav } from "./FriendNav.tsx";
 import { TUser } from "../types/user.ts";
 import { MessageEventSubscriber, useWebSocketContext } from "./websocket.tsx";
@@ -18,6 +18,22 @@ import { ActiveChat } from "../persistence/ActiveChat.ts";
 import { TApiResponse } from "../types/Api.ts";
 import { KeyRound, SendHorizonal } from "lucide-react";
 import { Cipher } from "../utils/cipher.ts";
+
+
+const buildMessageCiphers = ({ senderPrivateKey, recipientPublicKey, senderPublicKey }: { senderPrivateKey?: string, recipientPublicKey?: string, senderPublicKey?: string}) => {
+    let senderCipher = new Cipher({ privateKey: senderPrivateKey, publicKey: senderPublicKey })
+    let recipientCipher = new Cipher({ publicKey: recipientPublicKey })
+
+    console.log("uodate private", senderPrivateKey)
+    senderCipher = new Cipher({ privateKey: senderPrivateKey, publicKey: senderPublicKey })
+
+    console.log("uodate public", recipientPublicKey)
+
+    recipientCipher = new Cipher({ publicKey: recipientPublicKey })
+
+    return { senderCipher, recipientCipher }
+}
+
 
 type TUseChatWebsocketProps = {
     activeChat: TUser | null,
@@ -30,60 +46,37 @@ export const useChatWebsocket = ({
 }: TUseChatWebsocketProps) => {
     const websocket = useWebSocketContext()
     const [messages, _setMessages] = useState<TMessageDirect[] | null>(null)
+    const [loading, setLoading] = useState(false)
     const [page, setPage] = useState(0)
     const { token } = useAuth()
+    const { senderCipher, recipientCipher } = useMemo(() => buildMessageCiphers({ recipientPublicKey: activeChat?.public_key, senderPrivateKey: privateKey || undefined, senderPublicKey: token?.public_key }), [ privateKey, activeChat, token])
 
-    const setMessages = useCallback((messages: TMessageDirect[]) => {
-
-        const recipient = activeChat
-        if (!recipient) return
-
-
-        const verifiedMessages = verifyMessagesSignature(messages, recipient.public_key, token?.public_key)
-        if (!verifiedMessages) {
-
-            _setMessages(messages)
-            return console.error("Could not verify signatures")
-        }
-
-        if (!privateKey) {
-            _setMessages(verifiedMessages)
-            console.error("No private key set, not decrypting");
-
-            return
-        }
-        const decryptedMessages = decryptMessages(verifiedMessages, privateKey)
-
-        if (!decryptedMessages) {
-            _setMessages(verifiedMessages)
-            return console.error("Could not decrypt messages")
-        }
-
-
-        _setMessages(messages)
-    }, [activeChat, privateKey])
-
-    useEffect(() => {
-        if (!privateKey) return
-        decryptCurrentMessages(privateKey)
-    }, [privateKey])
-
-    const decryptCurrentMessages = async (private_key: string) => {
-        const recipient = activeChat
-        if (!recipient) return
-
-        const verifiedMessages = verifyMessagesSignature(messages || [], recipient.public_key, token?.public_key)
-        if (!verifiedMessages) return console.error("Could not verify signatures")
-
-        const decryptedMessages = decryptMessages(verifiedMessages, private_key)
-
-        if (!decryptedMessages) return console.error("Could not decrypt messages")
-        setMessages(decryptedMessages)
+    const setMessages = (messages: TMessageDirect[]) => {
+        setLoading(true)
+        console.log(recipientCipher, activeChat)
+        const verifiedAndDecryptedMessages = tryVerifyAndDecryptMessages(senderCipher, recipientCipher, messages)
+        _setMessages(verifiedAndDecryptedMessages)
+        setLoading(false)
     }
 
+    // This effect reverifies and decrypts the messages whenever the recipientCipher (e.g. ActiveChat) or the senderCipher (e.g. private Key) changes
     useEffect(() => {
+        console.log("EFFECT", senderCipher, recipientCipher)
+        setMessages(messages || [])
+    }, [senderCipher, recipientCipher])
+
+
+    // This effect fetches the latest messages whenever the active chat changes
+    useEffect(() => {
+        setLoading(true)
+        console.log("AAWWWWW", senderCipher, recipientCipher)
         _setMessages(null)
-        loadMessages(0, 15, true)
+        fetchNewMessages(0, 15, true).then((newMessages) => {
+            console.log("newMessages", newMessages)
+            console.log("AAWWWWW", senderCipher, recipientCipher)
+            setMessages(newMessages || [])
+            setLoading(false)
+        })
     }, [activeChat])
 
     useEffect(() => {
@@ -107,7 +100,7 @@ export const useChatWebsocket = ({
             ...messages || [],
             { ...message, is_read: false }
         ])
-    }, [messages])
+    }, [messages, setMessages])
 
 
     const subscriber = useRef(new MessageEventSubscriber("chat"))
@@ -120,9 +113,10 @@ export const useChatWebsocket = ({
         websocket.meta?.current.publisher.subscribe(subscriber.current)
     }, [])
 
-    const loadMessages = (index = page, size = 15, clearMessages = false) => {
-        if (!activeChat) return
-        fetchRequest<object, TApiResponse<TMessageDTO[]>>(buildApiUrl(`/messages?origin=${activeChat.username}&index=${index}&size=${size}`), {
+    const fetchNewMessages = async (index = page, size = 15, clearMessages = false) => {
+        setLoading(true)
+        if (!activeChat) return setLoading(false)
+        const loadedMessages: TMessageDirect[] | undefined = await fetchRequest<object, TApiResponse<TMessageDTO[]>>(buildApiUrl(`/messages?origin=${activeChat.username}&index=${index}&size=${size}`), {
             method: EHTTPMethod.GET,
         }).then(({ body }) => {
             if (!body.data?.length) return
@@ -136,13 +130,16 @@ export const useChatWebsocket = ({
                 message_self_encrypted_signature: m.content_self_encrypted_signature,
                 message_signature: m.content_signature,
             }))
-            let newMessages = clearMessages ? b : [...b, ...(messages || [])]
-            setMessages(newMessages)
+            const newMessages = clearMessages ? b : [...b, ...(messages || [])]
+            console.log("load messages", newMessages, messages)
             setPage(index + 1)
+            return newMessages
         })
+        setLoading(false)
+        return loadedMessages || []
     }
 
-    return { messages, loadMessages }
+    return { messages, loadMessages: fetchNewMessages, loading }
 }
 
 
@@ -155,11 +152,11 @@ export const Chat = () => {
     const auth = useAuth()
     const [activeChat, setActiveChat] = useState<TUser | null>(null)
     const websocket = useWebSocketContext()
-    const { messages, loadMessages } = useChatWebsocket({
+    const { messages, loadMessages, loading } = useChatWebsocket({
         activeChat,
         privateKey
     })
-
+    console.log(loading, messages)
     const userPublicKey = fromBase64(auth.token?.public_key || "")
 
     useEffect(() => {
@@ -222,8 +219,8 @@ export const Chat = () => {
             <section className='grid relative grid-rows-chat-message grid-cols-1 gap-2 min-h-0 bg-slate-100 shadow-lg'>
                 <div className="relative min-h-0">
                 <div className='border rounded-md p-4 pb-16 shadow-sm relative scroll-auto h-full overflow-y-auto border-indigo-300 snap-y' ref={chatContainer}>
-                    {!messages && <MessageSkeleton />}
-                    {messages?.length && <span onClick={() => loadMessages()}>Load more</span>}
+                    {activeChat && !messages && loading && <MessageSkeleton />}
+                    {messagesForChat?.length && <span onClick={() => loadMessages()}>Load more</span>}
                     {messagesForChat.map((message, i) =>
                         <div key={i} className='w-full grid mb-2 snap-start'>
                                 <MessageBadge

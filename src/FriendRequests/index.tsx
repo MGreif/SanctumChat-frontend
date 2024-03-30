@@ -91,8 +91,8 @@ export const FriendRequests: FC = () => {
                 {friendRequests?.data?.map(u => <div className='w-full flex justify-between border border-indigo-300 mb-2 rounded-xl p-3 shadow-sm shadow-indigo-200 items-center'>
                     <span className={classes.name}>{u.sender_id}</span>
                     <span className={classes.buttons}>
-                        <Button className="bg-red-500" onClick={() => handleDenyClick(u.id)}>Deny</Button>
-                        <Button className="bg-green-500" onClick={() => handleAcceptClick(u.id)}>Accept</Button>
+                        <Button className="bg-red-500 hover:bg-red-700" onClick={() => handleDenyClick(u.id)}>Deny</Button>
+                        <Button className="bg-green-500  hover:bg-green-700" onClick={() => handleAcceptClick(u.id)}>Accept</Button>
                     </span>
                 </div>)}
             </div>

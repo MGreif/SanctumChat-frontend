@@ -4,10 +4,13 @@ import { JSEncryptRSAKey } from "jsencrypt/lib/JSEncryptRSAKey";
 export class Cipher {
     private privateKey: JSEncryptRSAKey
     private publicKey: JSEncryptRSAKey
-
+    private privateKeyRaw: string | undefined
+    private publicKeyRaw: string | undefined
     constructor({ privateKey, publicKey }: { privateKey?: string, publicKey?: string}) {
         this.privateKey = new JSEncryptRSAKey(privateKey)
         this.publicKey = new JSEncryptRSAKey(publicKey)
+        this.privateKeyRaw = privateKey
+        this.publicKeyRaw = publicKey
     }
 
 
@@ -25,5 +28,13 @@ export class Cipher {
 
     public signMessage(message:string) {
         return this.privateKey.sign(message, sha256, "sha256")
+    }
+
+    public getPrivateKey() {
+        return this.privateKeyRaw
+    }
+
+    public getPublicKey() {
+        return this.publicKeyRaw
     }
 }

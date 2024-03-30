@@ -21,7 +21,7 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
                 {auth.isLoggedIn && <>
                     <Link className="mr-2 text-indigo-500 underline" to={"/"}>Chat</Link>
                     <Link to={"/friend-requests"} className="mr-2 text-indigo-500 underline">Friend Requests</Link>
-                    <span className="mr-2">Logged in as {auth.token?.sub}</span><Button className="bg-red-500" onClick={auth.logout}>Logout</Button>
+                    <span className="mr-2">Logged in as {auth.token?.sub}</span><Button className="bg-red-500 hover:bg-red-700" onClick={auth.logout}>Logout</Button>
                 </>}
             </span>
         </div>
