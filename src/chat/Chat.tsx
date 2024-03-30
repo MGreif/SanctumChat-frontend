@@ -220,7 +220,7 @@ export const Chat = () => {
                 <div className="relative min-h-0">
                 <div className='border rounded-md p-4 pb-16 shadow-sm relative scroll-auto h-full overflow-y-auto border-indigo-300 snap-y' ref={chatContainer}>
                     {activeChat && !messages && loading && <MessageSkeleton />}
-                    {messagesForChat?.length && <span onClick={() => loadMessages()}>Load more</span>}
+                    {messagesForChat?.length > 0 && <span onClick={() => loadMessages()}>Load more</span>}
                     {messagesForChat.map((message, i) =>
                         <div key={i} className='w-full grid mb-2 snap-start'>
                                 <MessageBadge
