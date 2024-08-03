@@ -4,7 +4,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { ActionIcon, TextInput } from '@mantine/core'
+import { ActionIcon, TextInput, Tooltip } from '@mantine/core'
 import { fromBase64 } from 'js-base64'
 
 import { Layout } from '../layout/index.tsx'
@@ -14,7 +14,7 @@ import { showErrorNotification } from '../misc/Notifications/Notifications.ts'
 import { FriendNav } from './FriendNav.tsx'
 import { TUser } from '../types/user.ts'
 import { ActiveChat } from '../persistence/ActiveChat.ts'
-import { SendHorizonal } from 'lucide-react'
+import { Repeat, Repeat1, RotateCcw, RotateCw, SendHorizonal } from 'lucide-react'
 import { Cipher } from '../utils/cipher.ts'
 import { MessageSkeleton } from '../Components/MessageSkeleton.tsx'
 import { MessageBadge } from '../Components/MessageBadge.tsx'
@@ -142,7 +142,13 @@ export const Chat = () => {
             >
               {activeChat && !messages && loading && <MessageSkeleton />}
               {messagesForChat?.length > 0 && (
-                <span onClick={() => loadMessages()}>Load more</span>
+                <div className='snap-start flex justify-center align-middle'>
+                  <Tooltip label="Load older messages">
+                    <ActionIcon onClick={() => loadMessages().then(() => setTimeout(() => chatContainer.current?.scrollTo({ top: 0 }), 100))} > {/* TODO The timeout is really WIP right now and will be removed */}
+                      <RotateCw color='white' className='rounded-full bg-indigo-500 h-8 w-8 p-1' />
+                    </ActionIcon>
+                  </Tooltip>
+                </div>
               )}
               {messagesForChat.map((message, i) => (
                 <div key={i} className="w-full grid mb-2 snap-start">
@@ -181,7 +187,7 @@ export const Chat = () => {
             </form>
           </div>
         </section>
-      </div>
-    </Layout>
+      </div >
+    </Layout >
   )
 }

@@ -55,7 +55,7 @@ export const UserNavItem: FC<TUserNavItemProps> = ({
         ></span>
         {!!unreadItems && (
           <span className="h-6 bg-indigo-800 p-1 rounded-full relative w-6 flex items-center justify-center">
-            <span className="text-sm top-0">{unreadItems}</span>
+            <span className="text-sm top-0">{unreadItems > 99 ? "99+" : unreadItems}</span>
           </span>
         )}
       </span>

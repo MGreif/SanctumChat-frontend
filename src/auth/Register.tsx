@@ -79,60 +79,11 @@ export const Register = () => {
               Register
             </Button>
           </div>
-          <div className="grid grid-cols-2 *:text-sm place-items-center my-4 divide-x-2 *:w-full text-center">
+          <div className="grid grid-cols-2 *:text-sm place-items-center gap-2 px-2 my-4 divide-x-2 *:w-full  text-center">
             <span className="text-slate-400">Already have an account?</span>
             <Link to={'/login'} className="text-indigo-500">
               Login
             </Link>
-          </div>
-        </form>
-      </div>
-    </Layout>
-  )
-
-  return (
-    <Layout title="Register">
-      <div className={classes.formcontainer}>
-        <form action="/register" onSubmit={handleSubmit} method="POST">
-          <label className={classes.required} htmlFor="username">
-            Username
-          </label>{' '}
-          <br />
-          <TextInput required name="username" /> <br />
-          <label className={classes.required} htmlFor="password">
-            Password
-          </label>{' '}
-          <br />
-          <PasswordInput required type="password" name="password" />
-          <br />
-          <label
-            className={generateKey ? '' : classes.required}
-            htmlFor="public_key"
-          >
-            Insert own public RSA key (PKCS#8 .pem file)
-          </label>{' '}
-          <br />
-          <FileInput
-            onChange={(file) => file?.text().then(setPublicKey)}
-            disabled={generateKey}
-            required={!generateKey}
-          />
-          <Checkbox
-            className={classes.marginTop}
-            onChange={(e) => setChecked(e.target.checked)}
-            mb={'1em'}
-            label={
-              <InfoInline
-                tooltip={tooltipText}
-                text={'Or let the server generate a RSA key pair'}
-              />
-            }
-          />
-          <div className={classes.actions}>
-            <Button variant={'light'} type="reset">
-              Reset
-            </Button>
-            <Button type="submit">Register</Button>
           </div>
         </form>
       </div>

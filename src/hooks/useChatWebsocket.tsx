@@ -141,10 +141,10 @@ export const useChatWebsocket = ({
     const fetchNewMessages = async (
         index = page,
         size = 15,
-        clearMessages = false
+        clearMessages = false,
     ) => {
+        if (!activeChat) return
         setLoading(true)
-        if (!activeChat) return setLoading(false)
         const loadedMessages: TMessageDirect[] | undefined = await fetchRequest<
             object,
             TApiResponse<TMessageDTO[]>
@@ -170,9 +170,11 @@ export const useChatWebsocket = ({
             const newMessages = clearMessages ? b : [...b, ...(messages || [])]
             setPage(index + 1)
             return newMessages
-        })
+        }) || []
         setLoading(false)
-        return loadedMessages || []
+
+        loadedMessages.length > 0 && setMessages(loadedMessages)
+        return loadedMessages
     }
 
     return { messages, loadMessages: fetchNewMessages, loading }

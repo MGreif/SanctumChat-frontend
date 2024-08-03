@@ -43,7 +43,7 @@ export const Login = () => {
               Login
             </Button>
           </div>
-          <div className="grid grid-cols-2 *:text-sm place-items-center my-4 divide-x-2 *:w-full text-center">
+          <div className="grid grid-cols-2 *:text-sm place-items-center gap-2 px-2 my-4 divide-x-2 *:w-full  text-center">
             <span className="text-slate-400">Dont have an account?</span>
             <Link to={'/register'} className="text-indigo-500">
               Register
