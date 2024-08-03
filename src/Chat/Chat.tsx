@@ -21,11 +21,35 @@ import { MessageBadge } from '../Components/MessageBadge.tsx'
 import { KeyModal } from '../Components/KeyModal.tsx'
 import { useChatWebsocket } from '../hooks/useChatWebsocket.tsx'
 import { useWebSocketContext } from './websocket.tsx'
+import { TApiResponse } from '../types/Api.ts'
+import { TFriend } from '../types/friends.ts'
+import { buildApiUrl } from '../constants.ts'
+import { EHTTPMethod, useFetchEndpoint } from '../utils/fetch.ts'
 
 
+
+export const useFetchFriends = () => {
+  const auth = useAuth()
+  const { data: users, refetch } = useFetchEndpoint<
+    object,
+    TApiResponse<TFriend[]>,
+    TFriend[]
+  >(
+    {
+      url: buildApiUrl('/friends'),
+      fetchOptions: {
+        transform: (r) => r?.data || [],
+        method: EHTTPMethod.GET,
+      },
+    },
+    { skip: !auth.isLoggedIn }
+  )
+  return { users, refetch }
+}
 
 export const Chat = () => {
   const inputRef = useRef<HTMLInputElement>(null)
+  const { users, refetch } = useFetchFriends()
   const [privateKey, setPrivateKey] = useState<string | null>(null)
   const chatContainer = useRef<HTMLDivElement>(null)
   const auth = useAuth()
@@ -34,6 +58,7 @@ export const Chat = () => {
   const { messages, loadMessages, loading } = useChatWebsocket({
     activeChat,
     privateKey,
+    refetchFriends: refetch
   })
   const userPublicKey = fromBase64(auth.token?.public_key || '')
 
@@ -98,12 +123,13 @@ export const Chat = () => {
         m.sender === activeChat?.username
     ) || []
 
-  console.log("render chat");
 
   return (
     <Layout title="Chat">
       <div className="grid-cols-chat flex flex-col content-stretch items-stretch md:grid gap-4 mx-4 min-h-0">
         <FriendNav
+          users={users}
+          refetch={refetch}
           activeChat={activeChat}
           messages={messages || []}
           onChatChange={handleChatChange}

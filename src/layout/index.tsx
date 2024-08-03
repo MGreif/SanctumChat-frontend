@@ -14,7 +14,7 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
   const [mode, _] = useState<'dark' | 'light'>('light')
   return (
     <div
-      className={`h-dvh max-h-dvh justify-stretch grid grid-rows-layout ${mode === 'dark' ? 'dark' : ''}`}
+      className={`h-lvh justify-stretch grid grid-rows-layout ${mode === 'dark' ? 'dark' : ''}`}
     >
       <div className="h-full flex justify-between items-center p-4 bg-white dark:bg-stone-900">
         {title && <h2 className="text-2xl">{title}</h2>}
@@ -42,7 +42,7 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
         </span>
       </div>
 
-      <div className={`h-full grid min-h-0 ${className || ''}`}>{children}</div>
+      <div className={`h-full overflow-auto grid min-h-0 pt-10 ${className || ''}`}>{children}</div>
       <Footer />
     </div>
   )

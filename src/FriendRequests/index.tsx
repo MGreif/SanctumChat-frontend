@@ -77,7 +77,7 @@ export const FriendRequests: FC = () => {
   return (
     <Layout className={classes.layout} title={'Friend Requests'}>
       <div className="mx-auto w-3/4 min-h-0 flex flex-col">
-        <div className="flex gap-8 mb-8">
+        <div className="flex flex-col md:flex-row gap-8 mb-8">
           <div className="flex-1 border h-fit border-slate-300 p-4 rounded-xl shadow-md">
             <h2 className="text-xl mb-4">Send a friend request</h2>
             <div>
@@ -114,7 +114,7 @@ export const FriendRequests: FC = () => {
         <h2 className="mb-20 text-center text-3xl text-indigo-500 font-bold">
           Users that want to be your friend
         </h2>
-        <div className="rounded-md min-h-0 overflow-y-auto">
+        <div className="rounded-md min-h-32 overflow-y-auto">
           {!friendRequests?.data.length && (
             <h4 className="py-4 text-center text-3xl font-bold text-indigo-200">
               No pending requests

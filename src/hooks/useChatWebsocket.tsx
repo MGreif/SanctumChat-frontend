@@ -38,11 +38,13 @@ const buildMessageCiphers = ({
 type TUseChatWebsocketProps = {
     activeChat: TUser | null
     privateKey: string | null
+    refetchFriends?: () => void
 }
 
 export const useChatWebsocket = ({
     activeChat,
     privateKey,
+    refetchFriends
 }: TUseChatWebsocketProps) => {
     const { context: websocket } = useWebSocketContext()
     const [messages, _setMessages] = useState<TMessageDirect[] | null>(null)
@@ -81,7 +83,6 @@ export const useChatWebsocket = ({
     useEffect(() => {
         if (!activeChat) return
         setLoading(true)
-        _setMessages(null)
         fetchNewMessages(0, 15, true).then((newMessages) => {
             setMessages(newMessages || [])
             setLoading(false)
@@ -89,9 +90,9 @@ export const useChatWebsocket = ({
     }, [activeChat])
 
     useEffect(() => {
-        if (!privateKey || !activeChat) return
+        if (!privateKey || !activeChat || !messages) return
         const unread =
-            messages?.filter(
+            messages.filter(
                 (m) =>
                     !m.is_read &&
                     m.recipient == token?.sub &&
@@ -109,7 +110,15 @@ export const useChatWebsocket = ({
                     ids: unreadIdsFiltered,
                 },
             }
-        )
+        ).then(() => refetchFriends?.())
+        _setMessages(mess => mess?.map(m => {
+            if (!m.is_read &&
+                m.recipient == token?.sub &&
+                m.sender === activeChat?.username) {
+                return { ...m, is_read: true }
+            }
+            return m
+        }) || null)
     }, [messages])
 
     const handleMessageReceive = useCallback(

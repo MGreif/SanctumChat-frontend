@@ -23,6 +23,8 @@ type TFriendNavProps = {
   activeChat: TUser | null
   onChatChange: (user: TUser | null) => void
   messages: TMessageDirect[]
+  users?: TFriend[]
+  refetch: () => void
 }
 
 const getNoResultsText = (filteredUsers: TFriend[], users: TFriend[]) => {
@@ -36,22 +38,10 @@ export const FriendNav: FC<TFriendNavProps> = ({
   activeChat,
   onChatChange,
   messages,
+  users,
+  refetch
 }) => {
   const auth = useAuth()
-  const { data: users, refetch } = useFetchEndpoint<
-    object,
-    TApiResponse<TFriend[]>,
-    TFriend[]
-  >(
-    {
-      url: buildApiUrl('/friends'),
-      fetchOptions: {
-        transform: (r) => r?.data || [],
-        method: EHTTPMethod.GET,
-      },
-    },
-    { skip: !auth.isLoggedIn }
-  )
 
   const [filteredFriends, setFilteredFriends] = useState(users)
 
@@ -119,6 +109,7 @@ export const FriendNav: FC<TFriendNavProps> = ({
     const foundUser = users.find((u) => u.username === savedUserName)
     if (!foundUser) return
 
+    if (activeChat?.username === foundUser.username) return
     onChatChange(foundUser)
   }, [users])
 
@@ -163,9 +154,7 @@ export const FriendNav: FC<TFriendNavProps> = ({
                 onClick={(user) => onChatChange(user)}
                 unreadItems={
                   messages.filter((m) => m.sender === u.username && !m.is_read)
-                    .length ||
-                  u.unread_message_count ||
-                  0
+                    .length + u.unread_message_count || 0
                 }
               />
             ))}

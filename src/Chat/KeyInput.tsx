@@ -18,6 +18,7 @@ export const KeyInput: FC<TKeyInputProps> = ({
 }) => {
   const [checked, setChecked] = useState(!!localStorage.getItem('privateKey'))
   const [error, setError] = useState<string | null>(null)
+  const [valid, setValid] = useState(false)
 
   useEffect(() => {
     if (checked && privateKey) {
@@ -40,10 +41,12 @@ export const KeyInput: FC<TKeyInputProps> = ({
 
     if (encrypted === challenge) {
       onChange(privateKey)
+      setValid(true)
     } else {
       setError(
         'The given private key did not solve the decryption challenge. Please try a different key.'
       )
+      setValid(false)
     }
   }
 
@@ -103,7 +106,7 @@ export const KeyInput: FC<TKeyInputProps> = ({
         </div>
       )}
 
-      {!error && privateKey && (
+      {!error && privateKey && valid && (
         <div className="p-4 border mt-3 border-green-600 bg-green-300 text-center text-xl">
           Your private key successfully solved the decryption challenge.
         </div>
