@@ -76,7 +76,6 @@ export const tryVerifyAndDecryptMessages = (
 ): TMessageDirect[] => {
   const recipient_public_key = recipientCipher.getPublicKey()
   const sender_public_key = senderCipher.getPublicKey()
-  console.log('pub key', recipient_public_key, sender_public_key)
   if (!recipient_public_key || !sender_public_key) return messages
   const verifiedMessages = verifyMessagesSignature(
     messages || [],

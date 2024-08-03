@@ -124,8 +124,15 @@ const WebsocketContext = createContext<TWebsocketContext>({
 
 export const useWebSocketContext = () => {
     const context = useContext(WebsocketContext)
-
-    return context
+    const sendMessage = (data: string | ArrayBufferLike | Blob | ArrayBufferView) => {
+        try {
+            context.connection.current?.send(data)
+        } catch (ex) {
+            console.error(ex)
+            context.establishConnection()
+        }
+    }
+    return { context, sendMessage }
 }
 
 export const WebSocketContextProvider: FC<PropsWithChildren> = ({ children }) => {

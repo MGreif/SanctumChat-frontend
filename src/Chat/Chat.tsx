@@ -23,13 +23,14 @@ import { useChatWebsocket } from '../hooks/useChatWebsocket.tsx'
 import { useWebSocketContext } from './websocket.tsx'
 
 
+
 export const Chat = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const [privateKey, setPrivateKey] = useState<string | null>(null)
   const chatContainer = useRef<HTMLDivElement>(null)
   const auth = useAuth()
   const [activeChat, setActiveChat] = useState<TUser | null>(null)
-  const websocket = useWebSocketContext()
+  const { sendMessage } = useWebSocketContext()
   const { messages, loadMessages, loading } = useChatWebsocket({
     activeChat,
     privateKey,
@@ -77,7 +78,7 @@ export const Chat = () => {
       message_self_encrypted_signature: self_encrypted_message_signature,
     })
 
-    inputRef.current?.value && websocket.connection.current?.send(preparedText)
+    inputRef.current?.value && sendMessage(preparedText)
     inputRef.current.value = ''
   }
 
@@ -96,6 +97,9 @@ export const Chat = () => {
         m.recipient === activeChat?.username ||
         m.sender === activeChat?.username
     ) || []
+
+  console.log("render chat");
+
   return (
     <Layout title="Chat">
       <div className="grid-cols-chat flex flex-col content-stretch items-stretch md:grid gap-4 mx-4 min-h-0">

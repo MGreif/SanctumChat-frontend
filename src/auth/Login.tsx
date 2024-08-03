@@ -7,7 +7,7 @@ import { useWebSocketContext } from '../Chat/websocket.tsx'
 import { Link } from 'react-router-dom'
 export const Login = () => {
   const { login, isLoggedIn } = useAuth()
-  const { establishConnection } = useWebSocketContext()
+  const { context } = useWebSocketContext()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export const Login = () => {
     const username = e.target.username.value
     const password = e.target.password.value
     if (!username || !password) return
-    login(username, password).then(establishConnection)
+    login(username, password).then(context.establishConnection)
   }
 
   return (

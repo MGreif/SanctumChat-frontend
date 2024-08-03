@@ -15,8 +15,8 @@ import { FriendRequestNotification } from './FriendRequestNotification'
 import { ActiveChat } from '../persistence/ActiveChat'
 import { TFriend } from '../types/friends'
 import classes from './FriendNav.module.css'
-import { ActionIcon, Burger, Text } from '@mantine/core'
-import { ArrowLeft, Menu } from 'lucide-react'
+import { ActionIcon, Text } from '@mantine/core'
+import { ArrowLeft } from 'lucide-react'
 
 type TFriendNavProps = {
   activeChat: TUser | null
@@ -53,7 +53,6 @@ export const FriendNav: FC<TFriendNavProps> = ({
   )
 
   const [filteredFriends, setFilteredFriends] = useState(users)
-  const [friendNavOpen, setFriendNavOpen] = useState(false)
 
   useEffect(() => {
     setFilteredFriends(users)
@@ -81,7 +80,7 @@ export const FriendNav: FC<TFriendNavProps> = ({
     if (!activeUsers?.data) return
     setOnlineUsers(activeUsers.data)
   }, [activeUsers])
-  const websocket = useWebSocketContext()
+  const { context: websocket } = useWebSocketContext()
   const [onlineUsers, setOnlineUsers] = useState<string[]>([])
 
   const subscriber = useRef(

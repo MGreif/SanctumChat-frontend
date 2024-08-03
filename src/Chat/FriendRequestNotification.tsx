@@ -17,7 +17,7 @@ type TFriendRequestNotificationProps = {
 export const FriendRequestNotification: FC<TFriendRequestNotificationProps> = ({
   refetchFriends,
 }) => {
-  const websocket = useWebSocketContext()
+  const { context: websocket } = useWebSocketContext()
 
   const subscriber = useRef(
     new MessageEventSubscriber('FriendRequestNotification')

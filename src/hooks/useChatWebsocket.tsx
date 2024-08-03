@@ -44,14 +44,14 @@ export const useChatWebsocket = ({
     activeChat,
     privateKey,
 }: TUseChatWebsocketProps) => {
-    const websocket = useWebSocketContext()
+    const { context: websocket } = useWebSocketContext()
     const [messages, _setMessages] = useState<TMessageDirect[] | null>(null)
     const [loading, setLoading] = useState(false)
     const [page, setPage] = useState(0)
     const { token } = useAuth()
-    const { senderCipher, recipientCipher } = useMemo(
+    const chatMemberCiphers = useMemo(
         () =>
-            buildMessageCiphers({
+            activeChat && buildMessageCiphers({
                 recipientPublicKey: activeChat?.public_key,
                 senderPrivateKey: privateKey || undefined,
                 senderPublicKey: token?.public_key,
@@ -60,10 +60,11 @@ export const useChatWebsocket = ({
     )
 
     const setMessages = (messages: TMessageDirect[]) => {
+        if (!activeChat || !chatMemberCiphers) return
         setLoading(true)
         const verifiedAndDecryptedMessages = tryVerifyAndDecryptMessages(
-            senderCipher,
-            recipientCipher,
+            chatMemberCiphers.senderCipher,
+            chatMemberCiphers.recipientCipher,
             messages
         )
         _setMessages(verifiedAndDecryptedMessages)
@@ -72,11 +73,13 @@ export const useChatWebsocket = ({
 
     // This effect reverifies and decrypts the messages whenever the recipientCipher (e.g. ActiveChat) or the senderCipher (e.g. private Key) changes
     useEffect(() => {
+        if (!activeChat || !chatMemberCiphers) return
         setMessages(messages || [])
-    }, [senderCipher, recipientCipher])
+    }, [chatMemberCiphers])
 
     // This effect fetches the latest messages whenever the active chat changes
     useEffect(() => {
+        if (!activeChat) return
         setLoading(true)
         _setMessages(null)
         fetchNewMessages(0, 15, true).then((newMessages) => {
@@ -86,7 +89,7 @@ export const useChatWebsocket = ({
     }, [activeChat])
 
     useEffect(() => {
-        if (!privateKey) return
+        if (!privateKey || !activeChat) return
         const unread =
             messages?.filter(
                 (m) =>
