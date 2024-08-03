@@ -1,4 +1,4 @@
-import { AuthService } from '../Auth/AuthService'
+import { AuthService } from '../auth/AuthService'
 import { showErrorNotification } from '../misc/Notifications/Notifications'
 import { fromBase64 } from 'js-base64'
 import { TMessageDirect } from '../types/messages'

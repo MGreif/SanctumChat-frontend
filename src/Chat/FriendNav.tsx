@@ -15,10 +15,12 @@ import { FriendRequestNotification } from './FriendRequestNotification'
 import { ActiveChat } from '../persistence/ActiveChat'
 import { TFriend } from '../types/friends'
 import classes from './FriendNav.module.css'
+import { ActionIcon, Burger, Text } from '@mantine/core'
+import { ArrowLeft, Menu } from 'lucide-react'
 
 type TFriendNavProps = {
   activeChat: TUser | null
-  onChatChange: (user: TUser) => void
+  onChatChange: (user: TUser | null) => void
   messages: TMessageDirect[]
 }
 
@@ -51,6 +53,7 @@ export const FriendNav: FC<TFriendNavProps> = ({
   )
 
   const [filteredFriends, setFilteredFriends] = useState(users)
+  const [friendNavOpen, setFriendNavOpen] = useState(false)
 
   useEffect(() => {
     setFilteredFriends(users)
@@ -121,40 +124,46 @@ export const FriendNav: FC<TFriendNavProps> = ({
   }
 
   return (
-    <div className="flex justify-stretch flex-col p-4 border bg-slate-100 rounded-md box-border border-indigo-300 shadow-lg min-h-0">
-      <div className="mx-auto text-xl box-border">
-        <input
-          placeholder="Search ..."
-          className="p-4 box-border border border-slate-300 w-full rounded-xl mb-2 outline-indigo-500"
-          onChange={(e) => filterFriends(e.target.value)}
-        />
-      </div>
-      <nav className="flex flex-col gap-2 overflow-y-auto min-h-0 h-full snap-y">
-        <FriendRequestNotification refetchFriends={onFriendRequestApply} />
+    <>
+      {activeChat && <div className='md:hidden flex relative'>
+        <ActionIcon className='w-10 h-10' onClick={() => onChatChange(null)}><ArrowLeft /></ActionIcon>
+        <Text truncate size='24' className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>{activeChat.username}</Text>
+      </div>}
+      <div className={`${activeChat ? "hidden" : ""} md:flex justify-stretch flex-col p-4 border bg-slate-100 rounded-md box-border border-indigo-300 shadow-lg min-h-0`}>
+        <div className="mx-auto text-xl box-border">
+          <input
+            placeholder="Search ..."
+            className="p-4 box-border border border-slate-300 w-full rounded-xl mb-2 outline-indigo-500"
+            onChange={(e) => filterFriends(e.target.value)}
+          />
+        </div>
+        <nav className="flex flex-col gap-2 overflow-y-auto min-h-0 h-full snap-y">
+          <FriendRequestNotification refetchFriends={onFriendRequestApply} />
 
-        {!filteredFriends?.length && (
-          <div className={classes.no_results}>
-            {getNoResultsText(filteredFriends || [], users || [])}
-          </div>
-        )}
-        {filteredFriends
-          ?.filter((u) => u.username !== auth.token?.sub)
-          .map((u) => (
-            <UserNavItem
-              key={u.username}
-              isActiveChat={activeChat?.username === u.username}
-              isOnline={onlineUsers.includes(u.username)}
-              user={u}
-              onClick={(user) => onChatChange(user)}
-              unreadItems={
-                messages.filter((m) => m.sender === u.username && !m.is_read)
-                  .length ||
-                u.unread_message_count ||
-                0
-              }
-            />
-          ))}
-      </nav>
-    </div>
+          {!filteredFriends?.length && (
+            <div className={classes.no_results}>
+              {getNoResultsText(filteredFriends || [], users || [])}
+            </div>
+          )}
+          {filteredFriends
+            ?.filter((u) => u.username !== auth.token?.sub)
+            .map((u) => (
+              <UserNavItem
+                key={u.username}
+                isActiveChat={activeChat?.username === u.username}
+                isOnline={onlineUsers.includes(u.username)}
+                user={u}
+                onClick={(user) => onChatChange(user)}
+                unreadItems={
+                  messages.filter((m) => m.sender === u.username && !m.is_read)
+                    .length ||
+                  u.unread_message_count ||
+                  0
+                }
+              />
+            ))}
+        </nav>
+      </div >
+    </>
   )
 }

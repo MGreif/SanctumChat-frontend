@@ -51,7 +51,7 @@ export const KeyModal = (props: {
           withArrow
         >
           <KeyRound
-            className={`absolute ${props.privateKey ? 'bg-indigo-500' : 'bg-red-500'} ${props.privateKey ? 'hover:bg-indigo-700' : 'hover:bg-red-700'} p-4 box-border w-fit h-fit rounded-lg bg-indigo-500 bottom-4 left-16 transform -translate-x-1/2`}
+            className={`absolute ${props.privateKey ? 'bg-indigo-500' : 'bg-red-500'} ${props.privateKey ? 'hover:bg-indigo-700' : 'hover:bg-red-700'} p-4 box-border w-fit h-fit rounded-lg bg-indigo-500 bottom-4 md:left-16 left-4 transform md:-translate-x-1/2`}
             color="white"
           />
         </Tooltip>

@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren, useState } from 'react'
-import { useAuth } from '../Auth/useAuth'
+import { useAuth } from '../auth/useAuth'
 import { Link } from 'react-router-dom'
 import { Button } from '@mantine/core'
 import { Footer } from './Footer'
@@ -30,7 +30,7 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
               >
                 Friend Requests
               </Link>
-              <span className="mr-2">Logged in as {auth.token?.sub}</span>
+              <span className="mr-2 hidden md:inline">Logged in as {auth.token?.sub}</span>
               <Button
                 className="bg-red-500 hover:bg-red-700"
                 onClick={auth.logout}

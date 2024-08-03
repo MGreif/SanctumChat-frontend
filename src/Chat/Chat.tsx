@@ -34,7 +34,6 @@ export const Chat = () => {
     activeChat,
     privateKey,
   })
-  console.log(loading, messages)
   const userPublicKey = fromBase64(auth.token?.public_key || '')
 
   useEffect(() => {
@@ -82,8 +81,8 @@ export const Chat = () => {
     inputRef.current.value = ''
   }
 
-  const handleChatChange = (user: TUser) => {
-    ActiveChat.setValue(user.username)
+  const handleChatChange = (user: TUser | null) => {
+    user && ActiveChat.setValue(user.username)
     setActiveChat(user)
   }
 
@@ -99,13 +98,13 @@ export const Chat = () => {
     ) || []
   return (
     <Layout title="Chat">
-      <div className="grid-cols-chat grid gap-4 mx-4 min-h-0">
+      <div className="grid-cols-chat flex flex-col content-stretch items-stretch md:grid gap-4 mx-4 min-h-0">
         <FriendNav
           activeChat={activeChat}
           messages={messages || []}
           onChatChange={handleChatChange}
         />
-        <section className="grid relative grid-rows-chat-message grid-cols-1 gap-2 min-h-0 bg-slate-100 shadow-lg">
+        <section className={`${!activeChat ? "hidden" : ""} w-full h-full grid relative grid-rows-chat-message grid-cols-0 md:grid-cols-1 gap-2 min-h-0 bg-slate-100 shadow-lg`}>
           <div className="relative min-h-0">
             <div
               className="border rounded-md p-4 pb-16 shadow-sm relative scroll-auto h-full overflow-y-auto border-indigo-300 snap-y"
@@ -128,7 +127,7 @@ export const Chat = () => {
               ))}
             </div>
             <form onSubmit={handleMessageSend}>
-              <div className="absolute bottom-4 w-3/4 left-1/2 transform -translate-x-1/2">
+              <div className="absolute bottom-4 w-2/4 md:w-3/4 left-1/2 transform -translate-x-1/2">
                 <TextInput
                   placeholder="Hola"
                   className="w-full shadow-md"

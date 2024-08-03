@@ -24,13 +24,10 @@ const buildMessageCiphers = ({
     })
     let recipientCipher = new Cipher({ publicKey: recipientPublicKey })
 
-    console.log('uodate private', senderPrivateKey)
     senderCipher = new Cipher({
         privateKey: senderPrivateKey,
         publicKey: senderPublicKey,
     })
-
-    console.log('uodate public', recipientPublicKey)
 
     recipientCipher = new Cipher({ publicKey: recipientPublicKey })
 
@@ -64,7 +61,6 @@ export const useChatWebsocket = ({
 
     const setMessages = (messages: TMessageDirect[]) => {
         setLoading(true)
-        console.log(recipientCipher, activeChat)
         const verifiedAndDecryptedMessages = tryVerifyAndDecryptMessages(
             senderCipher,
             recipientCipher,
@@ -160,7 +156,6 @@ export const useChatWebsocket = ({
                 message_signature: m.content_signature,
             }))
             const newMessages = clearMessages ? b : [...b, ...(messages || [])]
-            console.log('load messages', newMessages, messages)
             setPage(index + 1)
             return newMessages
         })
