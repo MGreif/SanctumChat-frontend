@@ -4,11 +4,13 @@ import { AuthService } from './auth/AuthService'
 import { AuthContextProvider } from './auth/useAuth'
 import './output.css'
 import './scrollbar.css'
+import { SessionRefresh } from './auth/SessionRefresh'
 
 const render = () =>
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <AuthContextProvider>
       <App />
+      <SessionRefresh />
     </AuthContextProvider>
   )
 
