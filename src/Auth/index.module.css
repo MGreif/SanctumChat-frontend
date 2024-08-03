@@ -1,28 +1,28 @@
 .formcontainer {
-    align-self: center;
-    justify-self: center;
-    border-radius: 10px;
-    padding: 1em;
-    width: min(80vw, 600px);
-    box-shadow: 2px 2px 12px 3px #656565;
-    background-color: white;
+  align-self: center;
+  justify-self: center;
+  border-radius: 10px;
+  padding: 1em;
+  width: min(80vw, 600px);
+  box-shadow: 2px 2px 12px 3px #656565;
+  background-color: white;
 }
 
 .formcontainer label.required::after {
-    content: " *";
-    color: red;
+  content: ' *';
+  color: red;
 }
 
 .formcontainer h2 {
-    text-align: center;
+  text-align: center;
 }
 
 .formcontainer .actions {
-    display: flex;
-    margin-top: 1em;
-    justify-content: space-evenly;
+  display: flex;
+  margin-top: 1em;
+  justify-content: space-evenly;
 }
 
 .marginTop {
-    margin-top: 1em;
+  margin-top: 1em;
 }

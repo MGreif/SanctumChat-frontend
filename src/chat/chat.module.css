@@ -1,63 +1,60 @@
 .grid {
-    display: grid;
-    grid-template-areas: "chatlist content";
-    grid-template-rows: 1fr;
-    grid-template-columns: 300px 1fr;
-    gap: 1em;
-    height: 100%;
-    min-height: 0;
+  display: grid;
+  grid-template-areas: 'chatlist content';
+  grid-template-rows: 1fr;
+  grid-template-columns: 300px 1fr;
+  gap: 1em;
+  height: 100%;
+  min-height: 0;
 }
 
-
-.grid>section {
-    grid-area: content;
+.grid > section {
+  grid-area: content;
 }
 
 .chat {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 1em;
-    margin-right: 1em;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1em;
+  margin-right: 1em;
 }
 
 .message-container {
-    gap: 0.3em;
-    background-color: white;
-    border-radius: 10px;
-    height: 100%;
-    padding: 1em;
-    overflow-y: auto;
+  gap: 0.3em;
+  background-color: white;
+  border-radius: 10px;
+  height: 100%;
+  padding: 1em;
+  overflow-y: auto;
 }
 
-
 .message-row {
-    display: grid;
-    width: 100%;
-    margin-bottom: 0.5em;
+  display: grid;
+  width: 100%;
+  margin-bottom: 0.5em;
 }
 
 .message {
-    padding: 0.2em 0.4em;
-    border-radius: 10px;
-    max-width: 70%;
-    position: relative;
-    color: white;
-    height: fit-content;
-    word-break: break-all;
+  padding: 0.2em 0.4em;
+  border-radius: 10px;
+  max-width: 70%;
+  position: relative;
+  color: white;
+  height: fit-content;
+  word-break: break-all;
 }
 
-
 .message.verification-failed {
-    background-color: rgb(187, 0, 0);
+  background-color: rgb(187, 0, 0);
 }
 
 .message.verification-failed::after {
-    content: "❌";
-    font-size: 8pt;
-    position: absolute;
-    top: -6px;
-    right: -7px;
+  content: '❌';
+  font-size: 8pt;
+  position: absolute;
+  top: -6px;
+  right: -7px;
 }
 
 /*
@@ -71,23 +68,21 @@
 }
 */
 .receiver {
-    justify-self: flex-start;
-    width: fit-content;
-    background-color: rgb(62, 194, 255);
+  justify-self: flex-start;
+  width: fit-content;
+  background-color: rgb(62, 194, 255);
 }
 
 .sender {
-    justify-self: flex-end;
-    width: fit-content;
-    background-color: rgb(176, 168, 255);
+  justify-self: flex-end;
+  width: fit-content;
+  background-color: rgb(176, 168, 255);
 }
 
 .input {
-    width: 100%;
+  width: 100%;
 }
 
-
-
 .textarea {
-    grid-area: textarea;
+  grid-area: textarea;
 }

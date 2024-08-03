@@ -1,38 +1,38 @@
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 60px;
-    padding: 0 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  padding: 0 1em;
 }
 
 .container {
-    height: 100vh;
-    position: relative;
-    background-color: rgb(29, 29, 29);
-    color: white;
+  height: 100vh;
+  position: relative;
+  background-color: rgb(29, 29, 29);
+  color: white;
 }
 
 .darkmode {
-    background-color: rgb(29, 29, 29);
-    color: white;
+  background-color: rgb(29, 29, 29);
+  color: white;
 }
 
 .lightmode {
-    background-color: rgb(235, 235, 235);
-    color: #242424;
+  background-color: rgb(235, 235, 235);
+  color: #242424;
 }
 
-.links>* {
-    margin-right: 1em;
+.links > * {
+  margin-right: 1em;
 }
 
-.links>*:last-child {
-    margin-right: 0;
+.links > *:last-child {
+  margin-right: 0;
 }
 
 .content {
-    display: grid;
-    height: calc(100% - 100px);
-    padding: 1em;
+  display: grid;
+  height: calc(100% - 100px);
+  padding: 1em;
 }

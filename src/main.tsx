@@ -2,16 +2,19 @@ import ReactDOM from 'react-dom/client'
 import { App } from './App'
 import { AuthService } from './Auth/AuthService'
 import { AuthContextProvider } from './Auth/useAuth'
-import "./output.css"
-import "./scrollbar.css"
+import './output.css'
+import './scrollbar.css'
 
-const render = () => ReactDOM.createRoot(document.getElementById('root')!).render(
-  <AuthContextProvider>
-    <App />
-  </AuthContextProvider>
-)
+const render = () =>
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <AuthContextProvider>
+      <App />
+    </AuthContextProvider>
+  )
 
-AuthService.Instance.refreshToken().catch(() => {
-  sessionStorage.removeItem("token")
-  location.href = "/login"
-}).then(render)
+AuthService.Instance.refreshToken()
+  .catch(() => {
+    sessionStorage.removeItem('token')
+    location.href = '/login'
+  })
+  .then(render)

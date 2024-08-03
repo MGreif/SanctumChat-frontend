@@ -1,107 +1,105 @@
-.friendrequest>button {
-    margin-right: 0.5em;
+.friendrequest > button {
+  margin-right: 0.5em;
 }
 
-.friendrequest>button:last-child {
-    margin-right: 0
+.friendrequest > button:last-child {
+  margin-right: 0;
 }
 
 .nav {
-    overflow-y: auto;
-    height: 100%;
-    min-height: 0;
-    grid-area: chatlist;
-    background-color: white;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-    border-bottom: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
+  overflow-y: auto;
+  height: 100%;
+  min-height: 0;
+  grid-area: chatlist;
+  background-color: white;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-.nav>span.user-nav-item>span.dot_container {
-    height: 20px;
-    display: flex;
-    gap: 0.5em;
+.nav > span.user-nav-item > span.dot_container {
+  height: 20px;
+  display: flex;
+  gap: 0.5em;
 }
 
-.nav>span.user-nav-item {
-    padding: 1em;
-    display: flex;
-    background-color: #ffffff;
-    justify-content: space-between;
-    width: 100%;
-    border-bottom: 1px solid rgb(197, 197, 197);
-    align-items: center;
+.nav > span.user-nav-item {
+  padding: 1em;
+  display: flex;
+  background-color: #ffffff;
+  justify-content: space-between;
+  width: 100%;
+  border-bottom: 1px solid rgb(197, 197, 197);
+  align-items: center;
 }
 
-.nav>div.no_results {
-    padding: 1em;
-    background-color: #ffffff;
-    text-align: center;
-    color: rgb(197, 197, 197);
-
+.nav > div.no_results {
+  padding: 1em;
+  background-color: #ffffff;
+  text-align: center;
+  color: rgb(197, 197, 197);
 }
 
-.nav>span.user-nav-item.active {
-    background-color: #d8d8d8;
+.nav > span.user-nav-item.active {
+  background-color: #d8d8d8;
 }
 
-.nav>span.user-nav-item:hover {
-    background-color: #b4b4b4;
-    cursor: pointer;
+.nav > span.user-nav-item:hover {
+  background-color: #b4b4b4;
+  cursor: pointer;
 }
 
 .dot {
-    height: 20px;
-    width: 20px;
-    min-width: 20px;
-    display: inline-block;
-    border-radius: 100%;
+  height: 20px;
+  width: 20px;
+  min-width: 20px;
+  display: inline-block;
+  border-radius: 100%;
 }
 
 .dot.online {
-    background-color: green;
+  background-color: green;
 }
 
 .dot.unread {
-    background-color: rgb(62, 194, 255);
-    position: relative;
-    font-size: 10pt;
-    text-align: center;
-    text-justify: inter-cluster;
-    padding: 0 3px;
-    width: max(15px, fit-content);
+  background-color: rgb(62, 194, 255);
+  position: relative;
+  font-size: 10pt;
+  text-align: center;
+  text-justify: inter-cluster;
+  padding: 0 3px;
+  width: max(15px, fit-content);
 }
 
 .dot.unread .unread_count {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0px;
 }
 
 .user_search {
-    width: 100%;
+  width: 100%;
 }
 
-.user_search>input {
-    all: unset;
-    padding: 0.6em;
-    box-sizing: border-box;
-    background-color: white;
-    width: 100%;
-    border-bottom: 1px solid rgb(197, 197, 197);
-    font-size: 16pt;
+.user_search > input {
+  all: unset;
+  padding: 0.6em;
+  box-sizing: border-box;
+  background-color: white;
+  width: 100%;
+  border-bottom: 1px solid rgb(197, 197, 197);
+  font-size: 16pt;
 }
-
 
 .container {
-    height: 100%;
-    position: relative;
-    display: flex;
-    flex-direction: column;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
