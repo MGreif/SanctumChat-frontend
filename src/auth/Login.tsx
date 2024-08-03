@@ -3,7 +3,7 @@ import { Layout } from '../layout'
 import { useAuth } from './useAuth.tsx'
 import { useNavigate } from 'react-router'
 import { Button, PasswordInput, TextInput } from '@mantine/core'
-import { useWebSocketContext } from '../chat/websocket.tsx'
+import { useWebSocketContext } from '../Chat/websocket.tsx'
 import { Link } from 'react-router-dom'
 export const Login = () => {
   const { login, isLoggedIn } = useAuth()

@@ -1,13 +1,13 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import { Chat } from './chat/Chat'
-import { Login } from './Auth/Login.tsx'
+import { Chat } from './Chat/Chat.tsx'
+import { Login } from './auth/Login.tsx'
 import { FriendRequests } from './FriendRequests'
 import { MantineProvider } from '@mantine/core'
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 import { Notifications } from '@mantine/notifications'
-import { Register } from './Auth/Register.tsx'
-import { WebSocketContextProvider } from './chat/websocket.tsx'
+import { Register } from './auth/Register.tsx'
+import { WebSocketContextProvider } from './Chat/websocket.tsx'
 const routes = createBrowserRouter([
   {
     path: '/',

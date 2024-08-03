@@ -1,4 +1,4 @@
-import { AuthService } from '../Auth/AuthService.ts'
+import { AuthService } from '../auth/AuthService.ts'
 import { useCallback, useEffect, useState } from 'react'
 import { showErrorNotification } from '../misc/Notifications/Notifications.ts'
 import { TApiResponse } from '../types/Api.ts'
@@ -31,7 +31,7 @@ export type TfetchReturn<Body = object> = {
   error?: TError
 }
 
-function handleParsingFailed<R>(): TfetchReturn<R> {
+function handleParsingFailed<R> (): TfetchReturn<R> {
   showErrorNotification({
     title: 'Fetching failed',
     message: 'Could not parse response body',
@@ -45,7 +45,7 @@ function handleParsingFailed<R>(): TfetchReturn<R> {
   }
 }
 
-function handleFetchingFailed<R>(err: string): TfetchReturn<R> {
+function handleFetchingFailed<R> (err: string): TfetchReturn<R> {
   showErrorNotification({
     title: 'Fetching failed',
     message: err,
@@ -63,7 +63,7 @@ export async function fetchRequest<
   RequestBody = object,
   ResponseBody = object,
   ResponseBodyAfterTransform = object,
->(
+> (
   url: string,
   {
     method,
@@ -159,7 +159,7 @@ export function useFetchEndpoint<
   RequestBody = object,
   ResponseBody = object,
   ResponseBodyAfterTransform = ResponseBody,
->(
+> (
   fetchArgs: TuseFetchEndpointArgs<
     RequestBody,
     ResponseBody,
