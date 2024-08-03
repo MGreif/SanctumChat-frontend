@@ -17,6 +17,7 @@ import { TFriend } from '../types/friends'
 import classes from './FriendNav.module.css'
 import { ActionIcon, Text } from '@mantine/core'
 import { ArrowLeft } from 'lucide-react'
+import { TUseFriendStatusDebounceState, useFriendStatusDebounce } from '../hooks/useFriendStatusDebounce'
 
 type TFriendNavProps = {
   activeChat: TUser | null
@@ -82,23 +83,30 @@ export const FriendNav: FC<TFriendNavProps> = ({
   }, [activeUsers])
   const { context: websocket } = useWebSocketContext()
   const [onlineUsers, setOnlineUsers] = useState<string[]>([])
+  const debounce = useFriendStatusDebounce()
 
   const subscriber = useRef(
-    new MessageEventSubscriber('FriendNav')
+    new MessageEventSubscriber<{ debounceState: TUseFriendStatusDebounceState }>('FriendNav', { debounceState: debounce.friendStatusDebounceState.current })
       .setInitialOnlineFriendsReceive((message) => {
         setOnlineUsers(
           (message as TMessageInitialOnlineUsers).online_users || []
         )
       })
-      .setFriendStatusChangeMessageReceive((message) => {
+      .setFriendStatusChangeMessageReceive((message, state) => {
         const { status, user_id } = message
         if (status === EEvent.ONLINE) {
-          setOnlineUsers([...onlineUsers, user_id])
+          debounce.dispatch(state.debounceState, user_id, status, () => { setOnlineUsers(prev => ([...prev, user_id])) })
+
+
         } else if (status === EEvent.OFFLINE) {
-          setOnlineUsers(onlineUsers.filter((u) => u !== user_id))
+          debounce.dispatch(state.debounceState, user_id, status, () => setOnlineUsers(prev => prev.filter((u) => u !== user_id)))
         }
       })
   )
+
+  useEffect(() => {
+    subscriber.current.updateState({ debounceState: debounce.friendStatusDebounceState.current })
+  }, [debounce.friendStatusDebounceState.current])
 
   useEffect(() => {
     websocket.meta?.current.publisher.subscribe(subscriber.current)

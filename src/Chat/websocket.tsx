@@ -3,80 +3,86 @@ import { TMessage, TMessageDirect, TMessageError, TMessageFriendRequest, TMessag
 import { AuthService } from "../auth/AuthService";
 import { USE_SSL, buildApiUrl } from "../constants";
 
-export class MessageEventSubscriber {
+export class MessageEventSubscriber<TState extends Record<string, unknown> = Record<string, unknown>> {
     public id: string
-    public onMessageReceive: (message: TMessage) => void = () => { }
-    public onFriendRequestMessageReceive: (message: TMessageFriendRequest) => void = () => { }
-    public onNotficationMessageReceive: (message: TMessageNotification) => void = () => { }
-    public onFriendStatusChangeMessageReceive: (message: TMessageStatusChange) => void = () => { }
-    public onErrorMessageReceive: (message: TMessageError) => void = () => { }
-    public onInitialOnlineFriendsReceive: (message: TMessageInitialOnlineUsers) => void = () => { }
-    public onDirectMessageReceive: (message: TMessageDirect) => void = () => { }
+    private state: TState
+    public onMessageReceive: (message: TMessage, state: TState) => void = () => { }
+    public onFriendRequestMessageReceive: (message: TMessageFriendRequest, state: TState) => void = () => { }
+    public onNotficationMessageReceive: (message: TMessageNotification, state: TState) => void = () => { }
+    public onFriendStatusChangeMessageReceive: (message: TMessageStatusChange, state: TState) => void = () => { }
+    public onErrorMessageReceive: (message: TMessageError, state: TState) => void = () => { }
+    public onInitialOnlineFriendsReceive: (message: TMessageInitialOnlineUsers, state: TState) => void = () => { }
+    public onDirectMessageReceive: (message: TMessageDirect, state: TState) => void = () => { }
 
-    public setMessageReceive (handler: (message: TMessage) => void) {
+    public setMessageReceive (handler: (message: TMessage, state: TState) => void) {
         this.onMessageReceive = handler
         return this
     }
 
-    public setFriendRequestMessageReceive (handler: (message: TMessageFriendRequest) => void) {
+    public setFriendRequestMessageReceive (handler: (message: TMessageFriendRequest, state: TState) => void) {
         this.onFriendRequestMessageReceive = handler
         return this
     }
 
 
-    public setNotficationMessageReceive (handler: (message: TMessageNotification) => void) {
+    public setNotficationMessageReceive (handler: (message: TMessageNotification, state: TState) => void) {
         this.onNotficationMessageReceive = handler
         return this
     }
 
-    public setFriendStatusChangeMessageReceive (handler: (message: TMessageStatusChange) => void) {
+    public setFriendStatusChangeMessageReceive (handler: (message: TMessageStatusChange, state: TState) => void) {
         this.onFriendStatusChangeMessageReceive = handler
         return this
     }
 
-    public setErrorMessageReceive (handler: (message: TMessageError) => void) {
+    public setErrorMessageReceive (handler: (message: TMessageError, state: TState) => void) {
         this.onErrorMessageReceive = handler
         return this
     }
 
-    public setInitialOnlineFriendsReceive (handler: (message: TMessageInitialOnlineUsers) => void) {
+    public setInitialOnlineFriendsReceive (handler: (message: TMessageInitialOnlineUsers, state: TState) => void) {
         this.onInitialOnlineFriendsReceive = handler
         return this
     }
 
-    public setDirectMessageReceive (handler: (message: TMessageDirect) => void) {
+    public setDirectMessageReceive (handler: (message: TMessageDirect, state: TState) => void) {
         this.onDirectMessageReceive = handler
         return this
     }
 
-    constructor(id: string) {
+    constructor(id: string, state: TState = {} as TState) {
         this.id = id
+        this.state = state
+    }
+
+    public updateState (state: TState) {
+        this.state = state
     }
 
     public dispatch (message: TMessage) {
-        this.onMessageReceive(message)
+        this.onMessageReceive(message, this.state)
         switch (message.TYPE) {
             case "SOCKET_MESSAGE_DIRECT":
-                this.onDirectMessageReceive(message as TMessageDirect)
+                this.onDirectMessageReceive(message as TMessageDirect, this.state)
                 break;
 
             case "SOCKET_MESSAGE_FRIEND_REQUEST":
-                this.onFriendRequestMessageReceive(message as TMessageFriendRequest)
+                this.onFriendRequestMessageReceive(message as TMessageFriendRequest, this.state)
                 break;
 
             case "SOCKET_MESSAGE_NOTIFICATION":
-                this.onNotficationMessageReceive(message as TMessageNotification)
+                this.onNotficationMessageReceive(message as TMessageNotification, this.state)
                 break;
 
             case "SOCKET_MESSAGE_ONLINE_USERS":
-                this.onInitialOnlineFriendsReceive(message as TMessageInitialOnlineUsers)
+                this.onInitialOnlineFriendsReceive(message as TMessageInitialOnlineUsers, this.state)
                 break;
 
             case "SOCKET_MESSAGE_STATUS_CHANGE":
-                this.onFriendStatusChangeMessageReceive(message as TMessageStatusChange)
+                this.onFriendStatusChangeMessageReceive(message as TMessageStatusChange, this.state)
                 break;
             case "SOCKET_MESSAGE_ERROR":
-                this.onErrorMessageReceive(message as TMessageError)
+                this.onErrorMessageReceive(message as TMessageError, this.state)
                 break;
 
         }
@@ -84,19 +90,19 @@ export class MessageEventSubscriber {
 }
 
 export class MessageEventPublisher {
-    private subscribers: MessageEventSubscriber[] = []
+    private subscribers: MessageEventSubscriber<Record<string, unknown>>[] = []
     constructor() {
 
     }
 
-    public subscribe (subscriber: MessageEventSubscriber) {
+    public subscribe<TState extends Record<string, unknown>> (subscriber: MessageEventSubscriber<TState>) {
         if (this.subscribers.find(s => s.id === subscriber.id)) {
             console.warn("You cannot subscribe more than once. Check React render to find unnecessary rerenders", subscriber.id)
             this.subscribers = this.subscribers.filter(s => s.id !== subscriber.id)
         };
 
 
-        this.subscribers.push(subscriber)
+        this.subscribers.push(subscriber as MessageEventSubscriber<Record<string, unknown>>)
     }
 
     public publish (message: TMessage) {
