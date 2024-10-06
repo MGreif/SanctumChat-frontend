@@ -18,7 +18,7 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
     >
       <div className="h-full flex justify-between items-center p-4 bg-white dark:bg-stone-900">
         {title && <h2 className="text-2xl">{title}</h2>}
-        <span className='flex items-center'>
+        <span className="flex items-center">
           {auth.isLoggedIn && (
             <>
               <Link className="mr-2 text-indigo-500 underline" to={'/'}>
@@ -30,7 +30,9 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
               >
                 Friend Requests
               </Link>
-              <span className="mr-2 hidden md:inline">Logged in as {auth.token?.sub}</span>
+              <span className="mr-2 hidden md:inline">
+                Logged in as {auth.token?.sub}
+              </span>
               <Button
                 className="bg-red-500 hover:bg-red-700 min-w-24"
                 onClick={auth.logout}
@@ -42,7 +44,11 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
         </span>
       </div>
 
-      <div className={`h-full overflow-auto grid min-h-0 pt-10 ${className || ''}`}>{children}</div>
+      <div
+        className={`h-full overflow-auto grid min-h-0 pt-10 ${className || ''}`}
+      >
+        {children}
+      </div>
       <Footer />
     </div>
   )

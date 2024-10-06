@@ -1,9 +1,4 @@
-import {
-  FormEventHandler,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { FormEventHandler, useEffect, useRef, useState } from 'react'
 import { ActionIcon, TextInput, Tooltip } from '@mantine/core'
 import { fromBase64 } from 'js-base64'
 
@@ -14,7 +9,13 @@ import { showErrorNotification } from '../misc/Notifications/Notifications.ts'
 import { FriendNav } from './FriendNav.tsx'
 import { TUser } from '../types/user.ts'
 import { ActiveChat } from '../persistence/ActiveChat.ts'
-import { Repeat, Repeat1, RotateCcw, RotateCw, SendHorizonal } from 'lucide-react'
+import {
+  Repeat,
+  Repeat1,
+  RotateCcw,
+  RotateCw,
+  SendHorizonal,
+} from 'lucide-react'
 import { Cipher } from '../utils/cipher.ts'
 import { MessageSkeleton } from '../Components/MessageSkeleton.tsx'
 import { MessageBadge } from '../Components/MessageBadge.tsx'
@@ -25,8 +26,6 @@ import { TApiResponse } from '../types/Api.ts'
 import { TFriend } from '../types/friends.ts'
 import { buildApiUrl } from '../constants.ts'
 import { EHTTPMethod, useFetchEndpoint } from '../utils/fetch.ts'
-
-
 
 export const useFetchFriends = () => {
   const auth = useAuth()
@@ -58,7 +57,7 @@ export const Chat = () => {
   const { messages, loadMessages, loading } = useChatWebsocket({
     activeChat,
     privateKey,
-    refetchFriends: refetch
+    refetchFriends: refetch,
   })
   const userPublicKey = fromBase64(auth.token?.public_key || '')
 
@@ -123,7 +122,6 @@ export const Chat = () => {
         m.sender === activeChat?.username
     ) || []
 
-    
   return (
     <Layout title="Chat">
       <div className="grid-cols-chat flex flex-col content-stretch items-stretch md:grid gap-4 mx-4 min-h-0">
@@ -134,7 +132,9 @@ export const Chat = () => {
           messages={messages || []}
           onChatChange={handleChatChange}
         />
-        <section className={`${!activeChat ? "hidden" : ""} w-full h-full grid relative grid-rows-chat-message grid-cols-0 md:grid-cols-1 gap-2 min-h-0 bg-slate-100 shadow-lg`}>
+        <section
+          className={`${!activeChat ? 'hidden' : ''} w-full h-full grid relative grid-rows-chat-message grid-cols-0 md:grid-cols-1 gap-2 min-h-0 bg-slate-100 shadow-lg`}
+        >
           <div className="relative min-h-0">
             <div
               className="border rounded-md p-4 pb-16 shadow-sm relative scroll-auto h-full overflow-y-auto border-indigo-300 snap-y"
@@ -142,10 +142,24 @@ export const Chat = () => {
             >
               {activeChat && !messages && loading && <MessageSkeleton />}
               {messagesForChat?.length > 0 && (
-                <div className='snap-start flex justify-center align-middle'>
+                <div className="snap-start flex justify-center align-middle">
                   <Tooltip label="Load older messages">
-                    <ActionIcon onClick={() => loadMessages().then(() => setTimeout(() => chatContainer.current?.scrollTo({ top: 0 }), 100))} > {/* TODO The timeout is really WIP right now and will be removed */}
-                      <RotateCw color='white' className='rounded-full bg-indigo-500 h-8 w-8 p-1' />
+                    <ActionIcon
+                      onClick={() =>
+                        loadMessages().then(() =>
+                          setTimeout(
+                            () => chatContainer.current?.scrollTo({ top: 0 }),
+                            100
+                          )
+                        )
+                      }
+                    >
+                      {' '}
+                      {/* TODO The timeout is really WIP right now and will be removed */}
+                      <RotateCw
+                        color="white"
+                        className="rounded-full bg-indigo-500 h-8 w-8 p-1"
+                      />
                     </ActionIcon>
                   </Tooltip>
                 </div>
@@ -187,7 +201,7 @@ export const Chat = () => {
             </form>
           </div>
         </section>
-      </div >
-    </Layout >
+      </div>
+    </Layout>
   )
 }

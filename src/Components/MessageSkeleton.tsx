@@ -16,7 +16,8 @@ export const MessageSkeleton = () => {
     <div className="w-full h-full text-center">
       <div className="w-full grid mb-2">
         {data.map(([sender, width], index) => (
-          <span key={index}
+          <span
+            key={index}
             className={`justify-self-${sender ? 'start' : 'end'} px-3 text-white mb-2 p-2 rounded-2xl bg-indigo-100 ${width} h-7`}
           ></span>
         ))}

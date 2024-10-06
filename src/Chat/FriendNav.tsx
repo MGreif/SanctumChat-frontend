@@ -17,7 +17,10 @@ import { TFriend } from '../types/friends'
 import classes from './FriendNav.module.css'
 import { ActionIcon, Text } from '@mantine/core'
 import { ArrowLeft } from 'lucide-react'
-import { TUseFriendStatusDebounceState, useFriendStatusDebounce } from '../hooks/useFriendStatusDebounce'
+import {
+  TUseFriendStatusDebounceState,
+  useFriendStatusDebounce,
+} from '../hooks/useFriendStatusDebounce'
 
 type TFriendNavProps = {
   activeChat: TUser | null
@@ -39,7 +42,7 @@ export const FriendNav: FC<TFriendNavProps> = ({
   onChatChange,
   messages,
   users,
-  refetch
+  refetch,
 }) => {
   const auth = useAuth()
 
@@ -76,7 +79,11 @@ export const FriendNav: FC<TFriendNavProps> = ({
   const debounce = useFriendStatusDebounce()
 
   const subscriber = useRef(
-    new MessageEventSubscriber<{ debounceState: TUseFriendStatusDebounceState }>('FriendNav', { debounceState: debounce.friendStatusDebounceState.current })
+    new MessageEventSubscriber<{
+      debounceState: TUseFriendStatusDebounceState
+    }>('FriendNav', {
+      debounceState: debounce.friendStatusDebounceState.current,
+    })
       .setInitialOnlineFriendsReceive((message) => {
         setOnlineUsers(
           (message as TMessageInitialOnlineUsers).online_users || []
@@ -85,17 +92,21 @@ export const FriendNav: FC<TFriendNavProps> = ({
       .setFriendStatusChangeMessageReceive((message, state) => {
         const { status, user_id } = message
         if (status === EEvent.ONLINE) {
-          debounce.dispatch(state.debounceState, user_id, status, () => { setOnlineUsers(prev => ([...prev, user_id])) })
-
-
+          debounce.dispatch(state.debounceState, user_id, status, () => {
+            setOnlineUsers((prev) => [...prev, user_id])
+          })
         } else if (status === EEvent.OFFLINE) {
-          debounce.dispatch(state.debounceState, user_id, status, () => setOnlineUsers(prev => prev.filter((u) => u !== user_id)))
+          debounce.dispatch(state.debounceState, user_id, status, () =>
+            setOnlineUsers((prev) => prev.filter((u) => u !== user_id))
+          )
         }
       })
   )
 
   useEffect(() => {
-    subscriber.current.updateState({ debounceState: debounce.friendStatusDebounceState.current })
+    subscriber.current.updateState({
+      debounceState: debounce.friendStatusDebounceState.current,
+    })
   }, [debounce.friendStatusDebounceState.current])
 
   useEffect(() => {
@@ -123,11 +134,23 @@ export const FriendNav: FC<TFriendNavProps> = ({
 
   return (
     <>
-      {activeChat && <div className='md:hidden flex relative'>
-        <ActionIcon className='w-10 h-10' onClick={() => onChatChange(null)}><ArrowLeft /></ActionIcon>
-        <Text truncate size='24' className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>{activeChat.username}</Text>
-      </div>}
-      <div className={`${activeChat ? "hidden" : ""} md:flex justify-stretch flex-col p-4 border bg-slate-100 rounded-md box-border border-indigo-300 shadow-lg min-h-0`}>
+      {activeChat && (
+        <div className="md:hidden flex relative">
+          <ActionIcon className="w-10 h-10" onClick={() => onChatChange(null)}>
+            <ArrowLeft />
+          </ActionIcon>
+          <Text
+            truncate
+            size="24"
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          >
+            {activeChat.username}
+          </Text>
+        </div>
+      )}
+      <div
+        className={`${activeChat ? 'hidden' : ''} md:flex justify-stretch flex-col p-4 border bg-slate-100 rounded-md box-border border-indigo-300 shadow-lg min-h-0`}
+      >
         <div className="mx-auto text-xl box-border">
           <input
             placeholder="Search ..."
@@ -159,7 +182,7 @@ export const FriendNav: FC<TFriendNavProps> = ({
               />
             ))}
         </nav>
-      </div >
+      </div>
     </>
   )
 }
