@@ -37,11 +37,12 @@
   align-items: center;
 }
 
-.nav > div.no_results {
+.no_results {
   padding: 1em;
-  background-color: #ffffff;
+  background-color: inherit;
   text-align: center;
-  color: rgb(197, 197, 197);
+  color: rgb(153, 152, 152);
+  font-size: large;
 }
 
 .nav > span.user-nav-item.active {

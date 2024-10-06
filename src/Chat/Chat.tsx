@@ -123,7 +123,8 @@ export const Chat = () => {
         m.sender === activeChat?.username
     ) || []
 
-
+    console.log(messages);
+    
   return (
     <Layout title="Chat">
       <div className="grid-cols-chat flex flex-col content-stretch items-stretch md:grid gap-4 mx-4 min-h-0">

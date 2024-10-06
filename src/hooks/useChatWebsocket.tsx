@@ -63,6 +63,7 @@ export const useChatWebsocket = ({
 
     const setMessages = (messages: TMessageDirect[]) => {
         if (!activeChat || !chatMemberCiphers) return
+        if (messages.length === 0) return
         setLoading(true)
         const verifiedAndDecryptedMessages = tryVerifyAndDecryptMessages(
             chatMemberCiphers.senderCipher,

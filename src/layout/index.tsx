@@ -18,7 +18,7 @@ export const Layout: FC<TLayoutProps> = ({ children, title, className }) => {
     >
       <div className="h-full flex justify-between items-center p-4 bg-white dark:bg-stone-900">
         {title && <h2 className="text-2xl">{title}</h2>}
-        <span className='flex'>
+        <span className='flex items-center'>
           {auth.isLoggedIn && (
             <>
               <Link className="mr-2 text-indigo-500 underline" to={'/'}>
