@@ -10,13 +10,10 @@ import { FriendNav } from './FriendNav.tsx'
 import { TUser } from '../types/user.ts'
 import { ActiveChat } from '../persistence/ActiveChat.ts'
 import {
-  Repeat,
-  Repeat1,
-  RotateCcw,
   RotateCw,
   SendHorizonal,
 } from 'lucide-react'
-import { Cipher } from '../utils/cipher.ts'
+import { Cipher } from '../cryptography/cipher.ts'
 import { MessageSkeleton } from '../Components/MessageSkeleton.tsx'
 import { MessageBadge } from '../Components/MessageBadge.tsx'
 import { KeyModal } from '../Components/KeyModal.tsx'
@@ -25,7 +22,7 @@ import { useWebSocketContext } from './websocket.tsx'
 import { TApiResponse } from '../types/Api.ts'
 import { TFriend } from '../types/friends.ts'
 import { buildApiUrl } from '../constants.ts'
-import { EHTTPMethod, useFetchEndpoint } from '../utils/fetch.ts'
+import { EHTTPMethod, useFetchEndpoint } from '../api/fetch.ts'
 
 export const useFetchFriends = () => {
   const auth = useAuth()
@@ -54,7 +51,7 @@ export const Chat = () => {
   const auth = useAuth()
   const [activeChat, setActiveChat] = useState<TUser | null>(null)
   const { sendMessage } = useWebSocketContext()
-  const { messages, loadMessages, loading } = useChatWebsocket({
+  const { messages, loadMessages, isLoading } = useChatWebsocket({
     activeChat,
     privateKey,
     refetchFriends: refetch,
@@ -140,7 +137,7 @@ export const Chat = () => {
               className="border rounded-md p-4 pb-16 shadow-sm relative scroll-auto h-full overflow-y-auto border-indigo-300 snap-y"
               ref={chatContainer}
             >
-              {activeChat && !messages && loading && <MessageSkeleton />}
+              {activeChat && !messages && isLoading && <MessageSkeleton />}
               {messagesForChat?.length > 0 && (
                 <div className="snap-start flex justify-center align-middle">
                   <Tooltip label="Load older messages">

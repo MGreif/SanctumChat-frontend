@@ -3,7 +3,7 @@ import { useAuth } from '../auth/useAuth'
 import { buildApiUrl } from '../constants'
 import { TApiResponse } from '../types/Api'
 import { TUser } from '../types/user'
-import { EHTTPMethod, useFetchEndpoint } from '../utils/fetch'
+import { EHTTPMethod, useFetchEndpoint } from '../api/fetch'
 import { UserNavItem } from './UserNavItem'
 import {
   EEvent,

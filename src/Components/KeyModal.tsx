@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Cipher } from '../utils/cipher'
+import { Cipher } from '../cryptography/cipher'
 import { showErrorNotification } from '../misc/Notifications/Notifications'
 import { Modal, Tooltip } from '@mantine/core'
 import { KeyRound } from 'lucide-react'

@@ -1,6 +1,6 @@
 import { Button, Checkbox, Tooltip } from '@mantine/core'
 import { ChangeEventHandler, FC, useEffect, useState } from 'react'
-import { Cipher } from '../utils/cipher'
+import { Cipher } from '../cryptography/cipher'
 
 type TKeyInputProps = {
   onChange: (file: string | null) => void

@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode'
-import { EHTTPMethod, fetchRequest } from '../utils/fetch.ts'
+import { EHTTPMethod, fetchRequest } from '../api/fetch.ts'
 import { buildApiUrl } from '../constants.ts'
 import { TApiResponse } from '../types/Api.ts'
 

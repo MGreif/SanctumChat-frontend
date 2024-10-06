@@ -1,6 +1,6 @@
 import { FC, useCallback, useEffect, useRef } from 'react'
 import { buildApiUrl } from '../constants'
-import { EHTTPMethod, fetchRequest } from '../utils/fetch'
+import { EHTTPMethod, fetchRequest } from '../api/fetch'
 import { notifications } from '@mantine/notifications'
 import { MessageEventSubscriber, useWebSocketContext } from './websocket'
 import {

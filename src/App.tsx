@@ -28,7 +28,6 @@ const routes = createBrowserRouter([
 ])
 
 export const App = () => {
-  console.log('APPP')
   return (
     <MantineProvider
       theme={{

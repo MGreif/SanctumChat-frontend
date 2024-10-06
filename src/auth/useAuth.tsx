@@ -8,7 +8,7 @@ import {
   useEffect,
 } from 'react'
 import { AuthService, TToken } from './AuthService'
-import { EHTTPMethod, fetchRequest } from '../utils/fetch.ts'
+import { EHTTPMethod, fetchRequest } from '../api/fetch.ts'
 import { useLocation, useNavigate } from 'react-router'
 import { buildApiUrl } from '../constants.ts'
 import { TApiResponse } from '../types/Api.ts'

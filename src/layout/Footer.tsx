@@ -1,6 +1,6 @@
 import { buildApiUrl } from '../constants'
 import { TApiResponse } from '../types/Api'
-import { EHTTPMethod, useFetchEndpoint } from '../utils/fetch'
+import { EHTTPMethod, useFetchEndpoint } from '../api/fetch'
 
 export const Footer = () => {
   const { data, isLoading, error } = useFetchEndpoint<
