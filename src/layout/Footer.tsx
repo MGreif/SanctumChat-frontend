@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { buildApiUrl } from '../constants'
 import { TApiResponse } from '../types/Api'
 import { EHTTPMethod, useFetchEndpoint } from '../utils/fetch'
@@ -13,10 +12,6 @@ export const Footer = () => {
       method: EHTTPMethod.GET,
     },
   })
-
-  useEffect(() => {
-    console.log(1)
-  }, [])
 
   return (
     <footer className="flex justify-around items-center h-fit w-full m-auto">

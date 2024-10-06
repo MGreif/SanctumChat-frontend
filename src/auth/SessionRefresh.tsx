@@ -23,7 +23,6 @@ export const SessionRefresh: FC<TSessionRefreshProps> = ({
             const now = new Date().getTime()
             if (canRefresh(lastRefreshTimestamp.current, now, refreshDebounceTime)) {
                 lastRefreshTimestamp.current = now
-                console.log("refreshed session")
                 AuthService.Instance.refreshToken()
             }
         })

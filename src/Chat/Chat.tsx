@@ -123,7 +123,6 @@ export const Chat = () => {
         m.sender === activeChat?.username
     ) || []
 
-    console.log(messages);
     
   return (
     <Layout title="Chat">

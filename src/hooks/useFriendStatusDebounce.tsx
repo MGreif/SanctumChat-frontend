@@ -21,12 +21,6 @@ export type TUseFriendStatusDebounceState = Record<string, TFriendStatusUpdateEv
 export const useFriendStatusDebounce = () => {
     const friendStatusDebounceState = useRef<TUseFriendStatusDebounceState>({})
 
-
-    useEffect(() => {
-        console.log("STATE", friendStatusDebounceState.current)
-
-    }, [friendStatusDebounceState.current])
-
     const dispatch = (state: TUseFriendStatusDebounceState, username: string, event: EEvent, callback: () => void, timeoutDuration = 200) => {
 
         const newEvent: TFriendStatusUpdateEvent = { event, timeout: setTimeout(callback, timeoutDuration), triggeredAt: Date.now() }

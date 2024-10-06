@@ -16,7 +16,6 @@ export const Username: FC<{ username: string }> = ({ username }) => {
 
   useEffect(() => {
     if (!ref.current) return
-    console.log(ref.current.scrollWidth, ref.current.offsetWidth)
 
     if (ref.current.scrollWidth > ref.current.offsetWidth) {
       setOversized(true)
